@@ -233,9 +233,8 @@ const Plant = ({ data, isSelected, isFaded, onClick }) => {
 }
 
 const ModelLibrary = ({ type = 'plants', isFaded: externalIsFaded }) => {
-  const { selectedModel, setSelectedModel, modelVisibility, hasSelectedPipe } = useStore()
-  const isFaded = hasSelectedPipe || externalIsFaded
-  console.log('ModelLibrary - hasSelectedPipe:', hasSelectedPipe, 'isFaded:', isFaded)
+  const { selectedModel, setSelectedModel, modelVisibility, hasSelectedPipe, currentTool } = useStore()
+  const isFaded = hasSelectedPipe || externalIsFaded || currentTool === 'pipes'
 
   const plantsData = defaultPlantData
 
@@ -250,7 +249,7 @@ const ModelLibrary = ({ type = 'plants', isFaded: externalIsFaded }) => {
             key={plant.id}
             data={plant}
             isSelected={isSelected}
-            isFaded={isFaded}
+            isFaded={isFaded && !isSelected}
             onClick={(e) => {
               e.stopPropagation()
               setSelectedModel(plant)

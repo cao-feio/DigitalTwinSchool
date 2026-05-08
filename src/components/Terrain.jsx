@@ -4,9 +4,8 @@ import * as THREE from 'three'
 import { useStore } from '@/store/useStore'
 
 const Terrain = ({ isFaded: externalIsFaded }) => {
-  const { hasSelectedPipe } = useStore()
-  const isFaded = hasSelectedPipe || externalIsFaded
-  console.log('Terrain - hasSelectedPipe:', hasSelectedPipe, 'isFaded:', isFaded)
+  const { hasSelectedPipe, currentTool } = useStore()
+  const isFaded = hasSelectedPipe || externalIsFaded || currentTool === 'pipes'
   return (
     <group>
       {/* 基础地面 - 单一地面，无重叠 */}
@@ -17,7 +16,9 @@ const Terrain = ({ isFaded: externalIsFaded }) => {
           roughness={0.85}
           metalness={0.05}
           transparent={isFaded}
-          opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false}
+          opacity={isFaded ? 0.08 : 1} 
+          depthWrite={!isFaded} 
+          depthTest={true}
         />
       </mesh>
 

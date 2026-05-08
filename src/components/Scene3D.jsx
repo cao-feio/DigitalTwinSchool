@@ -481,7 +481,7 @@ const SingleUserBuilding = ({ building, isFaded: externalIsFaded }) => {
     measurementMode,
     addMeasurementPoint
   } = useStore();
-  const isFaded = hasSelectedPipe || externalIsFaded
+  const isFaded = (hasSelectedPipe || externalIsFaded || currentTool === 'pipes') && !selectedModel?.id;
 
   const meshRef = useRef(null);
   const offset = building.offset || [0, 0, 0];
@@ -595,8 +595,8 @@ const SingleUserBuilding = ({ building, isFaded: externalIsFaded }) => {
 }
 
 const UserBuildings = ({ isFaded: externalIsFaded }) => {
-  const { models, hasSelectedPipe, modelVisibility } = useStore()
-  const isFaded = hasSelectedPipe || externalIsFaded
+  const { models, hasSelectedPipe, modelVisibility, currentTool } = useStore()
+  const isFaded = hasSelectedPipe || externalIsFaded || currentTool === 'pipes'
   
   const userBuildings = models.filter(m => m.points && m.points.length >= 3)
   

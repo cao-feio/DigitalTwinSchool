@@ -585,7 +585,7 @@ const Pipe = ({ data, isSelected, onClick }) => {
   }
 
   return (
-    <group onClick={onClick}>
+    <group onClick={onClick} renderOrder={100}>
       {/* 绘制管线段 */}
       {segments.map((seg, i) => (
         <React.Fragment key={i}>
@@ -593,13 +593,14 @@ const Pipe = ({ data, isSelected, onClick }) => {
           <Cylinder
             position={seg.position}
             rotation={seg.rotation}
-            args={[data.diameter * 3, data.diameter * 3, seg.length, 8]}
+            args={[data.diameter * 5, data.diameter * 5, seg.length, 8]}
           >
             <meshBasicMaterial 
               color="#ffffff" 
               transparent 
               opacity={0} 
-              depthTest={false}
+              depthTest={true}
+              depthWrite={false}
             />
           </Cylinder>
           
@@ -612,7 +613,7 @@ const Pipe = ({ data, isSelected, onClick }) => {
             <meshStandardMaterial 
               color={isSelected ? '#ffffff' : data.color} 
               emissive={isSelected ? data.color : data.color}
-              emissiveIntensity={isSelected ? 1.5 : 0.3}
+              emissiveIntensity={isSelected ? 1.5 : 0.5}
               metalness={isSelected ? 0.9 : 0.4}
               roughness={isSelected ? 0.1 : 0.5}
             />

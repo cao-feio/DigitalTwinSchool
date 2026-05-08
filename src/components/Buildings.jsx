@@ -850,7 +850,7 @@ const Buildings = ({ isFaded: externalIsFaded }) => {
       {defaultBuildings.map(building => {
         if (modelVisibility[building.id] === false) return null
         const isSelected = selectedModel?.id === building.id
-        const isFaded = (hasSelectedPipe || externalIsFaded) && !isSelected
+        const isFaded = (hasSelectedPipe || externalIsFaded || currentTool === 'pipes') && !isSelected
         
         return (
           <group key={building.id}>
