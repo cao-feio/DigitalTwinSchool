@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import { Text, TransformControls } from '@react-three/drei'
 import { useStore } from '@/store/useStore'
 import * as THREE from 'three'
@@ -110,8 +110,61 @@ const SingleAnnotation = ({ annotation }) => {
   )
 }
 
+// 临时预览标注组件
+const TempAnnotationPreview = () => {
+  const { tempAnnotationPosition, newAnnotation } = useStore()
+  
+  if (!tempAnnotationPosition) return null
+  
+  return (
+    <group position={tempAnnotationPosition}>
+      <mesh>
+        {getGeometry(newAnnotation.style || 'box', newAnnotation.size || 1)}
+        <meshStandardMaterial
+          color={newAnnotation.color || '#00ffff'}
+          emissive={newAnnotation.color || '#00ffff'}
+          emissiveIntensity={0.4}
+          metalness={0.1}
+          roughness={0.4}
+          transparent
+          opacity={0.6}
+        />
+      </mesh>
+      
+      {newAnnotation.text && (
+        <Text
+          position={[0, 2.5 * (newAnnotation.size || 1), 0]}
+          color="#ffffff"
+          fontSize={1 * (newAnnotation.size || 1)}
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02 * (newAnnotation.size || 1)}
+          outlineColor="#000000"
+          transparent
+          opacity={0.8}
+        >
+          {newAnnotation.text}
+        </Text>
+      )}
+      
+      <mesh position={[0, 1 * (newAnnotation.size || 1), 0]}>
+        <coneGeometry args={[0.15 * (newAnnotation.size || 1), 0.8 * (newAnnotation.size || 1), 16]} />
+        <meshStandardMaterial
+          color={newAnnotation.color || '#00ffff'}
+          emissive={newAnnotation.color || '#00ffff'}
+          emissiveIntensity={0.4}
+          transparent
+          opacity={0.6}
+        />
+      </mesh>
+    </group>
+  )
+}
+
 const Annotations = () => {
-  const { annotations } = useStore()
+  const { annotations, layers } = useStore()
+
+  if (!layers.annotations) return null
 
   return (
     <group>
@@ -119,6 +172,7 @@ const Annotations = () => {
         if (!annotation.visible) return null
         return <SingleAnnotation key={annotation.id} annotation={annotation} />
       })}
+      <TempAnnotationPreview />
     </group>
   )
 }

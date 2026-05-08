@@ -1268,6 +1268,441 @@ const PipePropertyPanel = () => {
   )
 }
 
+const AnnotationPanel = () => {
+  const {
+    annotations,
+    selectedAnnotationId,
+    setSelectedAnnotationId,
+    addAnnotation,
+    removeAnnotation,
+    updateAnnotation,
+    toggleAnnotationVisibility,
+    isSelectingAnnotationPosition,
+    tempAnnotationPosition,
+    newAnnotation,
+    updateNewAnnotation,
+    startSelectingAnnotationPosition,
+    cancelSelectingAnnotationPosition,
+    transformMode,
+    setTransformMode
+  } = useStore()
+
+  const handleCreateAnnotation = () => {
+    if (tempAnnotationPosition && newAnnotation.text) {
+      const annotation = {
+        id: `anno-${Date.now()}`,
+        text: newAnnotation.text,
+        position: tempAnnotationPosition,
+        style: newAnnotation.style,
+        color: newAnnotation.color,
+        visible: true,
+        size: newAnnotation.size,
+        rotation: [0, 0, 0]
+      }
+      addAnnotation(annotation)
+      cancelSelectingAnnotationPosition()
+      updateNewAnnotation({ text: '', position: [0, 5, 0], style: 'box', color: '#00d4ff', size: 1 })
+    }
+  }
+
+  const selectedAnnotation = annotations.find(a => a.id === selectedAnnotationId)
+
+  const styleOptions = ['box', 'sphere', 'cylinder', 'cone']
+  const styleLabels = { box: '方形', sphere: '球形', cylinder: '圆柱', cone: '锥形' }
+  const colorOptions = ['#00d4ff', '#22c55e', '#f59e0b', '#ef4444', '#a855f7', '#ec4899']
+
+  return (
+    <Space direction="vertical" style={{ width: '100%' }} size="large">
+      {/* 新建标注 */}
+      <div style={{
+        background: 'rgba(40, 55, 75, 0.6)',
+        borderRadius: '6px',
+        padding: '12px',
+        border: '1px solid rgba(100, 150, 200, 0.15)'
+      }}>
+        <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+          新建标注
+        </div>
+        
+        {!isSelectingAnnotationPosition ? (
+          <button
+            onClick={startSelectingAnnotationPosition}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: '600',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            选择标注位置
+          </button>
+        ) : (
+          <Space direction="vertical" style={{ width: '100%' }} size="small">
+            <div style={{ color: '#00d4ff', fontSize: '12px', textAlign: 'center', padding: '8px', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '4px' }}>
+              点击地面选择位置
+            </div>
+            
+            {tempAnnotationPosition && (
+              <>
+                <div>
+                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>标注文字</label>
+                  <input
+                    type="text"
+                    value={newAnnotation.text}
+                    onChange={(e) => updateNewAnnotation({ text: e.target.value })}
+                    placeholder="输入标注内容"
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      background: 'rgba(40, 55, 75, 0.8)',
+                      border: '1px solid rgba(100, 150, 200, 0.3)',
+                      borderRadius: '4px',
+                      color: '#e6f2ff',
+                      fontSize: '12px'
+                    }}
+                  />
+                </div>
+                
+                <div>
+                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>标注形状</label>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {styleOptions.map(style => (
+                      <button
+                        key={style}
+                        onClick={() => updateNewAnnotation({ style })}
+                        style={{
+                          padding: '6px 12px',
+                          background: newAnnotation.style === style ? 'rgba(0, 212, 255, 0.2)' : 'rgba(40, 55, 75, 0.6)',
+                          border: `1px solid ${newAnnotation.style === style ? '#00d4ff' : 'rgba(100, 150, 200, 0.3)'}`,
+                          borderRadius: '4px',
+                          color: newAnnotation.style === style ? '#00d4ff' : '#a0b8cc',
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {styleLabels[style]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>标注颜色</label>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {colorOptions.map(color => (
+                      <button
+                        key={color}
+                        onClick={() => updateNewAnnotation({ color })}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          background: color,
+                          border: newAnnotation.color === color ? '2px solid #ffffff' : '2px solid transparent',
+                          cursor: 'pointer'
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                    大小: {newAnnotation.size.toFixed(1)}
+                  </label>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="3"
+                    step="0.1"
+                    value={newAnnotation.size}
+                    onChange={(e) => updateNewAnnotation({ size: parseFloat(e.target.value) })}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={cancelSelectingAnnotationPosition}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      background: 'rgba(100, 150, 200, 0.2)',
+                      color: '#a0b8cc',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={handleCreateAnnotation}
+                    disabled={!newAnnotation.text}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      background: newAnnotation.text ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'rgba(100, 150, 200, 0.2)',
+                      color: newAnnotation.text ? '#ffffff' : '#666666',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: newAnnotation.text ? 'pointer' : 'not-allowed',
+                      fontSize: '13px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    创建标注
+                  </button>
+                </div>
+              </>
+            )}
+          </Space>
+        )}
+      </div>
+
+      {/* 标注列表 */}
+      <div style={{
+        background: 'rgba(40, 55, 75, 0.6)',
+        borderRadius: '6px',
+        padding: '12px',
+        border: '1px solid rgba(100, 150, 200, 0.15)'
+      }}>
+        <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+          标注列表 ({annotations.length})
+        </div>
+        
+        <div style={{ maxHeight: '200px', overflowY: 'auto', paddingRight: '4px' }}>
+          {annotations.map(annotation => (
+            <div
+              key={annotation.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px',
+                background: selectedAnnotationId === annotation.id ? 'rgba(0, 212, 255, 0.15)' : 'rgba(40, 55, 75, 0.4)',
+                border: selectedAnnotationId === annotation.id ? '1px solid #00d4ff' : '1px solid transparent',
+                borderRadius: '6px',
+                marginBottom: '8px',
+                cursor: 'pointer'
+              }}
+              onClick={() => setSelectedAnnotationId(selectedAnnotationId === annotation.id ? null : annotation.id)}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '4px',
+                  background: annotation.color,
+                  opacity: annotation.visible ? 1 : 0.3
+                }} />
+                <span style={{ color: '#e6f2ff', fontSize: '13px' }}>
+                  {annotation.text}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleAnnotationVisibility(annotation.id)
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#a0b8cc',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}
+                >
+                  {annotation.visible ? '👁️' : '👁️‍🗨️'}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeAnnotation(annotation.id)
+                    if (selectedAnnotationId === annotation.id) {
+                      setSelectedAnnotationId(null)
+                    }
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+          ))}
+          
+          {annotations.length === 0 && (
+            <div style={{ textAlign: 'center', color: '#a0b8cc', fontSize: '12px', padding: '20px' }}>
+              暂无标注
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 选中标注的编辑 */}
+      {selectedAnnotation && (
+        <div style={{
+          background: 'rgba(40, 55, 75, 0.6)',
+          borderRadius: '6px',
+          padding: '12px',
+          border: '1px solid rgba(100, 150, 200, 0.15)'
+        }}>
+          <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+            编辑标注
+          </div>
+          
+          <Space direction="vertical" style={{ width: '100%' }} size="small">
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>标注文字</label>
+              <input
+                type="text"
+                value={selectedAnnotation.text}
+                onChange={(e) => updateAnnotation(selectedAnnotation.id, { text: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  background: 'rgba(40, 55, 75, 0.8)',
+                  border: '1px solid rgba(100, 150, 200, 0.3)',
+                  borderRadius: '4px',
+                  color: '#e6f2ff',
+                  fontSize: '12px'
+                }}
+              />
+            </div>
+            
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>变换控制</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {[
+                  { id: 'translate', label: '移动', icon: '↔️' },
+                  { id: 'rotate', label: '旋转', icon: '🔄' },
+                  { id: 'scale', label: '缩放', icon: '📏' }
+                ].map(mode => (
+                  <button
+                    key={mode.id}
+                    onClick={() => setTransformMode(transformMode === mode.id ? null : mode.id)}
+                    style={{
+                      flex: 1,
+                      padding: '8px',
+                      background: transformMode === mode.id ? 'rgba(0, 212, 255, 0.2)' : 'rgba(40, 55, 75, 0.6)',
+                      border: `1px solid ${transformMode === mode.id ? '#00d4ff' : 'rgba(100, 150, 200, 0.3)'}`,
+                      borderRadius: '4px',
+                      color: transformMode === mode.id ? '#00d4ff' : '#a0b8cc',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '2px'
+                    }}
+                  >
+                    <span>{mode.icon}</span>
+                    <span>{mode.label}</span>
+                  </button>
+                ))}
+              </div>
+              {transformMode && (
+                <button
+                  onClick={() => setTransformMode(null)}
+                  style={{
+                    width: '100%',
+                    marginTop: '8px',
+                    padding: '8px',
+                    background: 'rgba(100, 150, 200, 0.2)',
+                    border: 'none',
+                    borderRadius: '4px',
+                    color: '#a0b8cc',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  退出变换模式
+                </button>
+              )}
+            </div>
+            
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>标注形状</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {styleOptions.map(style => (
+                  <button
+                    key={style}
+                    onClick={() => updateAnnotation(selectedAnnotation.id, { style })}
+                    style={{
+                      padding: '6px 12px',
+                      background: selectedAnnotation.style === style ? 'rgba(0, 212, 255, 0.2)' : 'rgba(40, 55, 75, 0.6)',
+                      border: `1px solid ${selectedAnnotation.style === style ? '#00d4ff' : 'rgba(100, 150, 200, 0.3)'}`,
+                      borderRadius: '4px',
+                      color: selectedAnnotation.style === style ? '#00d4ff' : '#a0b8cc',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {styleLabels[style]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>标注颜色</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {colorOptions.map(color => (
+                  <button
+                    key={color}
+                    onClick={() => updateAnnotation(selectedAnnotation.id, { color })}
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      background: color,
+                      border: selectedAnnotation.color === color ? '2px solid #ffffff' : '2px solid transparent',
+                      cursor: 'pointer'
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                大小: {selectedAnnotation.size.toFixed(1)}
+              </label>
+              <input
+                type="range"
+                min="0.5"
+                max="3"
+                step="0.1"
+                value={selectedAnnotation.size}
+                onChange={(e) => updateAnnotation(selectedAnnotation.id, { size: parseFloat(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+            </div>
+          </Space>
+        </div>
+      )}
+    </Space>
+  )
+}
+
 const RightPanel = () => {
   const { currentTool, selectedModel, selectedPipe } = useStore()
 
@@ -1317,6 +1752,12 @@ const RightPanel = () => {
               </CollapsiblePanel>
             )}
           </>
+        )
+      case 'annotation':
+        return (
+          <CollapsiblePanel title="标注工具" icon={Tag} defaultOpen={true}>
+            <AnnotationPanel />
+          </CollapsiblePanel>
         )
       default:
         return (
