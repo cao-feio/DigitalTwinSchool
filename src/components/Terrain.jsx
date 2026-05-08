@@ -42,8 +42,8 @@ const Terrain = ({ isFaded: externalIsFaded }) => {
       <Plaza position={[95, 0.3, 0]} isFaded={isFaded} />
 
       {/* 停车场 - 调整到边缘 */}
-      <ParkingLot position={[-80, 0.3, -10]} isFaded={isFaded} />
-      <ParkingLot position={[80, 0.3, -10]} isFaded={isFaded} />
+      <ParkingLot position={[-85, 0.3, -10]} isFaded={isFaded} />
+      <ParkingLot position={[85, 0.3, -10]} isFaded={isFaded} />
 
       {/* 湖泊 - 移到不与建筑重叠的位置 */}
       <Pond position={[0, 0.3, -90]} isFaded={isFaded} />
@@ -59,7 +59,7 @@ const Terrain = ({ isFaded: externalIsFaded }) => {
 const Playground = ({ position, isFaded }) => (
   <group position={position}>
     {/* 草坪 */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <circleGeometry args={[25, 64]} />
       <meshStandardMaterial 
         color="#3a7a4a" 
@@ -68,7 +68,7 @@ const Playground = ({ position, isFaded }) => (
       />
     </mesh>
     {/* 跑道 */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.2, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.2, 0]} receiveShadow>
       <ringGeometry args={[20, 25, 64]} />
       <meshStandardMaterial 
         color="#e07020" 
@@ -77,7 +77,7 @@ const Playground = ({ position, isFaded }) => (
       />
     </mesh>
     {/* 足球场 */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.4, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.4, 0]} receiveShadow>
       <planeGeometry args={[30, 20]} />
       <meshStandardMaterial 
         color="#5a9a5a" 
@@ -90,7 +90,7 @@ const Playground = ({ position, isFaded }) => (
 
 const BasketballCourt = ({ position, isFaded }) => (
   <group position={position}>
-    <mesh rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[28, 15]} />
       <meshStandardMaterial 
         color="#e89a3a" 
@@ -101,14 +101,14 @@ const BasketballCourt = ({ position, isFaded }) => (
     {/* 篮筐 */}
     {[-12, 12].map(x => (
       <group key={x} position={[x, 0, 0]}>
-        <Cylinder position={[0, 1.5, 0]} args={[0.1, 0.1, 3, 8]}>
+        <Cylinder position={[0, 1.5, 0]} args={[0.1, 0.1, 3, 8]} castShadow receiveShadow>
           <meshStandardMaterial 
             color="#d4af37" 
             transparent={isFaded} 
             opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
           />
         </Cylinder>
-        <Box position={[0, 3, 0]} args={[1.2, 0.05, 0.8]}>
+        <Box position={[0, 3, 0]} args={[1.2, 0.05, 0.8]} castShadow receiveShadow>
           <meshStandardMaterial 
             color="#ffffff" 
             transparent={isFaded} 
@@ -122,7 +122,7 @@ const BasketballCourt = ({ position, isFaded }) => (
 
 const TennisCourt = ({ position, isFaded }) => (
   <group position={position}>
-    <mesh rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[36, 18]} />
       <meshStandardMaterial 
         color="#4a7a5a" 
@@ -131,7 +131,7 @@ const TennisCourt = ({ position, isFaded }) => (
       />
     </mesh>
     {/* 网球网 */}
-    <mesh position={[0, 0.5, 0]}>
+    <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
       <boxGeometry args={[0.1, 0.9, 10.97]} />
       <meshStandardMaterial 
         color="#2a2a2a" 
@@ -145,7 +145,7 @@ const TennisCourt = ({ position, isFaded }) => (
 const RoadNetwork = ({ isFaded }) => (
   <group>
     {/* 主路 */}
-    <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[12, 300]} />
       <meshStandardMaterial 
         color="#4a4a4a" 
@@ -154,7 +154,7 @@ const RoadNetwork = ({ isFaded }) => (
         opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
       />
     </mesh>
-    <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[300, 12]} />
       <meshStandardMaterial 
         color="#4a4a4a" 
@@ -165,7 +165,7 @@ const RoadNetwork = ({ isFaded }) => (
     </mesh>
     
     {/* 次路 - 避开建筑位置 */}
-    <mesh position={[-25, 0.2, -30]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[-25, 0.2, -30]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[8, 80]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -174,7 +174,7 @@ const RoadNetwork = ({ isFaded }) => (
         opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
       />
     </mesh>
-    <mesh position={[25, 0.2, -30]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[25, 0.2, -30]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[8, 80]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -183,7 +183,7 @@ const RoadNetwork = ({ isFaded }) => (
         opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
       />
     </mesh>
-    <mesh position={[-25, 0.2, 30]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[-25, 0.2, 30]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[8, 60]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -192,7 +192,7 @@ const RoadNetwork = ({ isFaded }) => (
         opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
       />
     </mesh>
-    <mesh position={[25, 0.2, 30]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[25, 0.2, 30]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[8, 60]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -202,7 +202,7 @@ const RoadNetwork = ({ isFaded }) => (
       />
     </mesh>
     {/* 外围环路 */}
-    <mesh position={[-70, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[-70, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[8, 180]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -211,7 +211,7 @@ const RoadNetwork = ({ isFaded }) => (
         opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
       />
     </mesh>
-    <mesh position={[70, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[70, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[8, 180]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -220,7 +220,7 @@ const RoadNetwork = ({ isFaded }) => (
         opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
       />
     </mesh>
-    <mesh position={[0, 0.2, -80]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[0, 0.2, -80]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[180, 8]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -229,7 +229,7 @@ const RoadNetwork = ({ isFaded }) => (
         opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
       />
     </mesh>
-    <mesh position={[0, 0.2, 80]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[0, 0.2, 80]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[180, 8]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -243,7 +243,7 @@ const RoadNetwork = ({ isFaded }) => (
 
 const Plaza = ({ position, isFaded }) => (
   <group position={position}>
-    <mesh rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[40, 30]} />
       <meshStandardMaterial 
         color="#6a6a6a" 
@@ -254,7 +254,7 @@ const Plaza = ({ position, isFaded }) => (
     </mesh>
     {/* 旗杆 */}
     <group position={[0, 0, 0]}>
-      <Cylinder position={[0, 7, 0]} args={[0.15, 0.15, 14, 8]}>
+      <Cylinder position={[0, 7, 0]} args={[0.15, 0.15, 14, 8]} castShadow receiveShadow>
         <meshStandardMaterial 
           color="#d4af37" 
           metalness={0.8} 
@@ -263,7 +263,7 @@ const Plaza = ({ position, isFaded }) => (
           opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
         />
       </Cylinder>
-      <Box position={[0, 14, 0]} args={[0.8, 0.05, 1.5]}>
+      <Box position={[0, 14, 0]} args={[0.8, 0.05, 1.5]} castShadow receiveShadow>
         <meshStandardMaterial 
           color="#e74c3c" 
           transparent={isFaded} 
@@ -276,7 +276,7 @@ const Plaza = ({ position, isFaded }) => (
 
 const ParkingLot = ({ position, isFaded }) => (
   <group position={position}>
-    <mesh rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[40, 30]} />
       <meshStandardMaterial 
         color="#5a5a5a" 
@@ -290,7 +290,7 @@ const ParkingLot = ({ position, isFaded }) => (
 
 const Pond = ({ position, isFaded }) => (
   <group position={position}>
-    <mesh rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <circleGeometry args={[15, 64]} />
       <meshStandardMaterial 
         color="#2196F3" 
@@ -302,14 +302,14 @@ const Pond = ({ position, isFaded }) => (
     </mesh>
     {/* 喷泉 */}
     <group position={[0, 0, 0]}>
-      <Cylinder position={[0, 0.5, 0]} args={[1.8, 2.5, 1, 32]}>
+      <Cylinder position={[0, 0.5, 0]} args={[1.8, 2.5, 1, 32]} castShadow receiveShadow>
         <meshStandardMaterial 
           color="#708090" 
           transparent={isFaded} 
           opacity={isFaded ? 0.15 : 1} depthWrite={false} depthTest={false} 
         />
       </Cylinder>
-      <Cylinder position={[0, 2, 0]} args={[0.3, 0.3, 2.5, 8]}>
+      <Cylinder position={[0, 2, 0]} args={[0.3, 0.3, 2.5, 8]} castShadow receiveShadow>
         <meshStandardMaterial 
           color="#708090" 
           transparent={isFaded} 
@@ -322,7 +322,7 @@ const Pond = ({ position, isFaded }) => (
 
 const LandscapeHill = ({ position, isFaded }) => (
   <group position={position}>
-    <Cone position={[0, 3, 0]} args={[20, 6, 32]}>
+    <Cone position={[0, 3, 0]} args={[20, 6, 32]} castShadow receiveShadow>
       <meshStandardMaterial 
         color="#2a4a2a" 
         roughness={0.95} 

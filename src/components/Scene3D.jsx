@@ -587,6 +587,8 @@ const SingleUserBuilding = ({ building, isFaded: externalIsFaded }) => {
         ref={meshRef}
         geometry={geometry} 
         onPointerDown={handlePointerDown}
+        castShadow
+        receiveShadow
       >
         <SimpleTextureMaterial 
           imageUrl={building.image} 
@@ -875,7 +877,7 @@ const SunlightAnalysis = () => {
 
   const azimuthRad = THREE.MathUtils.degToRad(finalAzimuth)
   const altitudeRad = THREE.MathUtils.degToRad(Math.max(0, finalAltitude))
-  const distance = 300
+  const distance = 400
   const sunX = Math.sin(azimuthRad) * Math.cos(altitudeRad) * distance
   const sunY = Math.sin(altitudeRad) * distance
   const sunZ = Math.cos(azimuthRad) * Math.cos(altitudeRad) * distance
@@ -893,52 +895,44 @@ const SunlightAnalysis = () => {
         <group position={[sunX, sunY, sunZ]}>
           {/* 太阳核心 */}
           <mesh>
-            <sphereGeometry args={[12, 32, 32]} />
+            <sphereGeometry args={[15, 32, 32]} />
             <meshStandardMaterial 
               color="#ffdd44" 
               emissive="#ffaa00" 
-              emissiveIntensity={2}
+              emissiveIntensity={2.5}
             />
           </mesh>
           {/* 太阳光晕内层 */}
           <mesh>
-            <sphereGeometry args={[18, 32, 32]} />
-            <meshBasicMaterial color="rgba(255, 200, 50, 0.4)" transparent />
+            <sphereGeometry args={[22, 32, 32]} />
+            <meshBasicMaterial color="rgba(255, 200, 50, 0.5)" transparent />
           </mesh>
           {/* 太阳光晕外层 */}
           <mesh>
-            <sphereGeometry args={[25, 32, 32]} />
-            <meshBasicMaterial color="rgba(255, 150, 0, 0.2)" transparent />
+            <sphereGeometry args={[30, 32, 32]} />
+            <meshBasicMaterial color="rgba(255, 150, 0, 0.25)" transparent />
           </mesh>
-          {/* 太阳光 */}
-          <pointLight 
-            color="#fff7e0" 
-            intensity={5} 
-            distance={800} 
-            decay={1.2} 
-            castShadow 
-          />
           {/* 太阳标签 */}
-          <Text position={[0, 22, 0]} color="#ffdd44" fontSize={3} anchorX="center" outlineWidth={0.12} outlineColor="#000">
+          <Text position={[0, 28, 0]} color="#ffdd44" fontSize={3.5} anchorX="center" outlineWidth={0.12} outlineColor="#000">
             {useTimeMode ? `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}` : '太阳'}
           </Text>
           {/* 太阳角度信息 */}
-          <Text position={[0, 17, 0]} color="#f59e0b" fontSize={1.2} anchorX="center" outlineWidth={0.08} outlineColor="#000">
+          <Text position={[0, 22, 0]} color="#f59e0b" fontSize={1.4} anchorX="center" outlineWidth={0.08} outlineColor="#000">
             方位:{Math.round(finalAzimuth)}° 高度:{Math.round(finalAltitude)}°
           </Text>
         </group>
       ) : (
         <group>
           {/* 月亮/夜间模式 */}
-          <mesh position={[sunX, Math.max(10, sunY), sunZ]}>
-            <sphereGeometry args={[8, 32, 32]} />
+          <mesh position={[sunX, Math.max(20, sunY), sunZ]}>
+            <sphereGeometry args={[10, 32, 32]} />
             <meshStandardMaterial 
               color="#e0e0ff" 
               emissive="#8080c0" 
-              emissiveIntensity={0.5}
+              emissiveIntensity={0.6}
             />
           </mesh>
-          <Text position={[sunX, Math.max(10, sunY) + 12, sunZ]} color="#a0a0ff" fontSize={2} anchorX="center" outlineWidth={0.08} outlineColor="#000">
+          <Text position={[sunX, Math.max(20, sunY) + 15, sunZ]} color="#a0a0ff" fontSize={2.5} anchorX="center" outlineWidth={0.08} outlineColor="#000">
             夜间
           </Text>
         </group>
@@ -951,7 +945,7 @@ const SunlightAnalysis = () => {
             args={[
               new THREE.Vector3(sunX, sunY, sunZ).normalize().negate(),
               new THREE.Vector3(0, 0, 0),
-              40,
+              50,
               '#ffdd44'
             ]}
           />
@@ -970,12 +964,12 @@ const SunlightAnalysis = () => {
                 itemSize={3}
               />
             </bufferGeometry>
-            <lineBasicMaterial color="#ffdd44" transparent opacity={0.8} linewidth={2} />
+            <lineBasicMaterial color="#ffdd44" transparent opacity={0.85} linewidth={2} />
           </line>
           
           {/* 分析点标记 */}
           <group position={analysisViewpoint}>
-            <mesh>
+            <mesh castShadow receiveShadow>
               <sphereGeometry args={[1.2, 24, 24]} />
               <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} />
             </mesh>
@@ -984,9 +978,9 @@ const SunlightAnalysis = () => {
 
           {/* 分析点阴影指示 */}
           <group>
-            <mesh position={[analysisViewpoint[0], 0.05, analysisViewpoint[2]]}>
+            <mesh position={[analysisViewpoint[0], 0.05, analysisViewpoint[2]]} receiveShadow>
               <cylinderGeometry args={[0.4, 0.4, 0.1, 16]} />
-              <meshBasicMaterial color="rgba(0, 0, 0, 0.6)" />
+              <meshBasicMaterial color="rgba(0, 0, 0, 0.7)" />
             </mesh>
             
             {/* 阴影方向线 */}
@@ -1004,14 +998,14 @@ const SunlightAnalysis = () => {
                   itemSize={3}
                 />
               </bufferGeometry>
-              <lineBasicMaterial color="rgba(0, 0, 0, 0.8)" linewidth={3} />
+              <lineBasicMaterial color="rgba(0, 0, 0, 0.9)" linewidth={3} />
             </line>
             
             {/* 阴影长度标记 */}
             <Text 
               position={[
                 analysisViewpoint[0] + Math.sin(azimuthRad + Math.PI) * shadowLength / 2,
-                1.5,
+                1.8,
                 analysisViewpoint[2] + Math.cos(azimuthRad + Math.PI) * shadowLength / 2
               ]}
               color="#6b7280"
@@ -1028,33 +1022,44 @@ const SunlightAnalysis = () => {
 
       {/* 阴影接收地面 */}
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[600, 600]} />
-        <shadowMaterial opacity={0.5} />
+        <planeGeometry args={[800, 800]} />
+        <shadowMaterial opacity={0.65} />
       </mesh>
 
       {/* 环境光（根据时间调整亮度） */}
       <ambientLight 
-        intensity={finalAltitude > 0 ? Math.max(0.3, finalAltitude / 90) : 0.1} 
+        intensity={finalAltitude > 0 ? Math.max(0.4, finalAltitude / 80) : 0.15} 
         color={finalAltitude > 0 ? "#fff7e0" : "#303060"} 
       />
 
-      {/* 方向光用于阴影计算 */}
+      {/* 半球光提供更好的环境照明 */}
+      {finalAltitude > 0 && (
+        <hemisphereLight 
+          intensity={0.5} 
+          groundColor="#3a5a3a" 
+          skyColor="#87ceeb" 
+        />
+      )}
+
+      {/* 方向光用于阴影计算 - 高质量阴影配置 */}
       {finalAltitude > 0 && (
         <directionalLight
           position={[sunX, sunY, sunZ]}
-          intensity={Math.max(1, finalAltitude / 30)}
+          intensity={Math.max(1.2, finalAltitude / 25)}
           color="#fff7e0"
           castShadow
-          shadow-mapSize={[2048, 2048]}
-          shadow-camera-left={-250}
-          shadow-camera-right={250}
-          shadow-camera-top={250}
-          shadow-camera-bottom={-250}
-          shadow-camera-near={1}
-          shadow-camera-far={1000}
-          shadow-bias={-0.0001}
+          shadow-mapSize={[4096, 4096]}
+          shadow-camera-left={-300}
+          shadow-camera-right={300}
+          shadow-camera-top={300}
+          shadow-camera-bottom={-300}
+          shadow-camera-near={10}
+          shadow-camera-far={800}
+          shadow-bias={-0.0005}
+          shadow-normalBias={0.02}
+          shadow-radius={2}
         >
-          <orthographicCamera attach="shadow-camera" args={[-250, 250, 250, -250]} />
+          <orthographicCamera attach="shadow-camera" args={[-300, 300, 300, -300, 10, 800]} />
         </directionalLight>
       )}
     </group>
