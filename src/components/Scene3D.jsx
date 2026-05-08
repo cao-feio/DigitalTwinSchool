@@ -679,26 +679,58 @@ const ViewShedAnalysis = () => {
   if (!analysisViewpoint) return null
 
   const range = 100
-  const segments = 32
+  const segments = 64
 
   return (
     <group>
+      {/* 观察点标记 */}
       <group position={analysisViewpoint}>
         <mesh>
-          <sphereGeometry args={[1, 16, 16]} />
-          <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={0.5} />
+          <sphereGeometry args={[1.5, 24, 24]} />
+          <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={0.8} />
         </mesh>
-        <Text position={[0, 3, 0]} color="#3b82f6" fontSize={1.2} anchorX="center">视点</Text>
+        <Text position={[0, 4, 0]} color="#3b82f6" fontSize={1.5} anchorX="center" outlineWidth={0.05} outlineColor="#000">观察点</Text>
       </group>
 
+      {/* 可见范围圆锥体 */}
       <mesh position={analysisViewpoint}>
-        <coneGeometry args={[range, range * 0.5, segments, 1, true]} />
-        <meshBasicMaterial color="rgba(59, 130, 246, 0.1)" side={THREE.DoubleSide} transparent />
+        <coneGeometry args={[range, range * 0.8, segments, 1, true]} />
+        <meshBasicMaterial color="rgba(59, 130, 246, 0.15)" side={THREE.DoubleSide} transparent />
       </mesh>
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[analysisViewpoint[0], 0.01, analysisViewpoint[2]]}>
+      {/* 地面范围圆环 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[analysisViewpoint[0], 0.02, analysisViewpoint[2]]}>
         <ringGeometry args={[0, range, segments]} />
-        <meshBasicMaterial color="rgba(59, 130, 246, 0.2)" side={THREE.DoubleSide} transparent />
+        <meshBasicMaterial color="rgba(59, 130, 246, 0.25)" side={THREE.DoubleSide} transparent />
+      </mesh>
+
+      {/* 网格辅助线 */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const angle = (i / 8) * Math.PI * 2
+        const x = Math.sin(angle) * range
+        const z = Math.cos(angle) * range
+        return (
+          <line key={[0, 0, 0]}>
+            <bufferGeometry>
+              <bufferAttribute
+                attach="attributes-position"
+                count={2}
+                array={new Float32Array([
+                  analysisViewpoint[0], analysisViewpoint[1], analysisViewpoint[2],
+                  analysisViewpoint[0] + x, 0, analysisViewpoint[2] + z
+                ])}
+                itemSize={3}
+              />
+            </bufferGeometry>
+            <lineBasicMaterial color="rgba(59, 130, 246, 0.4)" />
+          </line>
+        )
+      })}
+
+      {/* 范围边界线 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[analysisViewpoint[0], 0.03, analysisViewpoint[2]]}>
+        <ringGeometry args={[range * 0.99, range, segments]} />
+        <meshBasicMaterial color="rgba(59, 130, 246, 0.5)" side={THREE.DoubleSide} />
       </mesh>
     </group>
   )
@@ -716,16 +748,36 @@ const SunlightAnalysis = () => {
 
   return (
     <group>
+      {/* 太阳标记 */}
       <group position={[sunX, sunY, sunZ]}>
         <mesh>
-          <sphereGeometry args={[8, 32, 32]} />
+          <sphereGeometry args={[10, 32, 32]} />
           <meshBasicMaterial color="#ffdd44" />
         </mesh>
-        <pointLight color="#fff" intensity={3} distance={500} decay={2} />
+        {/* 太阳光晕 */}
+        <mesh>
+          <sphereGeometry args={[15, 32, 32]} />
+          <meshBasicMaterial color="rgba(255, 221, 68, 0.3)" transparent />
+        </mesh>
+        <pointLight color="#fff" intensity={4} distance={600} decay={1.5} castShadow />
+        <Text position={[0, 18, 0]} color="#ffdd44" fontSize={3} anchorX="center" outlineWidth={0.1} outlineColor="#000">太阳</Text>
+      </group>
+
+      {/* 太阳光线方向指示 */}
+      <group position={[sunX * 0.5, sunY * 0.5, sunZ * 0.5]}>
+        <arrowHelper
+          args={[
+            new THREE.Vector3(sunX, sunY, sunZ).normalize().negate(),
+            new THREE.Vector3(0, 0, 0),
+            30,
+            '#ffdd44'
+          ]}
+        />
       </group>
 
       {analysisViewpoint && (
         <>
+          {/* 太阳光线到分析点 */}
           <line>
             <bufferGeometry>
               <bufferAttribute
@@ -735,23 +787,45 @@ const SunlightAnalysis = () => {
                 itemSize={3}
               />
             </bufferGeometry>
-            <lineBasicMaterial color="#ffdd44" transparent opacity={0.5} />
+            <lineBasicMaterial color="#ffdd44" transparent opacity={0.7} linewidth={3} />
           </line>
           
+          {/* 分析点标记 */}
           <group position={analysisViewpoint}>
             <mesh>
-              <sphereGeometry args={[1, 16, 16]} />
-              <meshStandardMaterial color="#f59e0b" />
+              <sphereGeometry args={[1.5, 24, 24]} />
+              <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.5} />
             </mesh>
-            <Text position={[0, 3, 0]} color="#f59e0b" fontSize={1.2} anchorX="center">分析点</Text>
+            <Text position={[0, 4, 0]} color="#f59e0b" fontSize={1.5} anchorX="center" outlineWidth={0.05} outlineColor="#000">分析点</Text>
+          </group>
+
+          {/* 分析点阴影指示 */}
+          <group>
+            <mesh position={[analysisViewpoint[0], 0.05, analysisViewpoint[2]]}>
+              <cylinderGeometry args={[0.5, 0.5, 0.1, 16]} />
+              <meshBasicMaterial color="rgba(0, 0, 0, 0.5)" />
+            </mesh>
           </group>
         </>
       )}
 
-      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[400, 400]} />
-        <shadowMaterial opacity={0.3} />
+      {/* 阴影接收地面 */}
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[500, 500]} />
+        <shadowMaterial opacity={0.4} />
       </mesh>
+
+      {/* 方向光用于阴影计算 */}
+      <directionalLight
+        position={[sunX, sunY, sunZ]}
+        intensity={2.5}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-left={-200}
+        shadow-camera-right={200}
+        shadow-camera-top={200}
+        shadow-camera-bottom={-200}
+      />
     </group>
   )
 }

@@ -1269,6 +1269,180 @@ const PipePropertyPanel = () => {
 }
 
 // Annotation panel with location support
+const AnalysisPanel = () => {
+  const {
+    analysisMode,
+    setAnalysisMode,
+    analysisViewpoint,
+    setAnalysisViewpoint,
+    sunPosition,
+    setSunPosition,
+    clearAnalysisResults
+  } = useStore()
+
+  const analysisOptions = [
+    { id: 'viewshed', label: '可视化范围分析', icon: '👁️' },
+    { id: 'sunlight', label: '日照分析', icon: '☀️' }
+  ]
+
+  return (
+    <Space direction="vertical" style={{ width: '100%' }} size="large">
+      {/* 分析模式选择 */}
+      <div style={{
+        background: 'rgba(20, 30, 48, 0.95)',
+        borderRadius: '8px',
+        padding: '12px',
+        border: '1px solid rgba(100, 150, 200, 0.2)'
+      }}>
+        <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+          分析工具
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {analysisOptions.map((option) => (
+            <button
+              key={option.id}
+              onClick={() => setAnalysisMode(analysisMode === option.id ? null : option.id)}
+              style={{
+                padding: '10px 12px',
+                background: analysisMode === option.id 
+                  ? 'rgba(24, 144, 255, 0.2)' 
+                  : 'rgba(40, 55, 75, 0.6)',
+                border: analysisMode === option.id 
+                  ? '1px solid #1890ff' 
+                  : '1px solid rgba(100, 150, 200, 0.3)',
+                borderRadius: '6px',
+                color: analysisMode === option.id ? '#1890ff' : '#a0b8cc',
+                fontSize: '13px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <span style={{ fontSize: '18px' }}>{option.icon}</span>
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 可视化范围分析设置 */}
+      {analysisMode === 'viewshed' && (
+        <div style={{
+          background: 'rgba(20, 30, 48, 0.95)',
+          borderRadius: '8px',
+          padding: '12px',
+          border: '1px solid rgba(100, 150, 200, 0.2)'
+        }}>
+          <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+            可视化范围分析设置
+          </div>
+          <div style={{ color: '#a0b8cc', fontSize: '11px', marginBottom: '12px' }}>
+            点击地面选择观察点，系统将显示从该点的可见范围
+          </div>
+          {analysisViewpoint && (
+            <div style={{
+              padding: '8px',
+              background: 'rgba(59, 130, 246, 0.1)',
+              borderRadius: '4px',
+              marginBottom: '12px',
+              border: '1px solid rgba(59, 130, 246, 0.3)'
+            }}>
+              <div style={{ color: '#3b82f6', fontSize: '12px' }}>
+                ✓ 已设置观察点
+              </div>
+              <div style={{ color: '#a0b8cc', fontSize: '10px', marginTop: '4px' }}>
+                位置: [{analysisViewpoint[0].toFixed(1)}, {analysisViewpoint[1].toFixed(1)}, {analysisViewpoint[2].toFixed(1)}]
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 日照分析设置 */}
+      {analysisMode === 'sunlight' && (
+        <div style={{
+          background: 'rgba(20, 30, 48, 0.95)',
+          borderRadius: '8px',
+          padding: '12px',
+          border: '1px solid rgba(100, 150, 200, 0.2)'
+        }}>
+          <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+            日照分析设置
+          </div>
+          
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                方位角: {sunPosition.azimuth}°
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="360"
+                step="5"
+                value={sunPosition.azimuth}
+                onChange={(e) => setSunPosition({ ...sunPosition, azimuth: parseInt(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#666', marginTop: '2px' }}>
+                <span>0°</span>
+                <span>180°</span>
+                <span>360°</span>
+              </div>
+            </div>
+
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                高度角: {sunPosition.altitude}°
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="90"
+                step="5"
+                value={sunPosition.altitude}
+                onChange={(e) => setSunPosition({ ...sunPosition, altitude: parseInt(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#666', marginTop: '2px' }}>
+                <span>0°</span>
+                <span>45°</span>
+                <span>90°</span>
+              </div>
+            </div>
+
+            <div style={{ color: '#a0b8cc', fontSize: '11px', marginTop: '8px' }}>
+              点击地面选择分析点，查看该点的日照情况
+            </div>
+          </Space>
+        </div>
+      )}
+
+      {/* 清除按钮 */}
+      {analysisMode && (
+        <button
+          onClick={clearAnalysisResults}
+          style={{
+            width: '100%',
+            padding: '10px',
+            background: 'rgba(239, 68, 68, 0.2)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '6px',
+            color: '#ef4444',
+            fontSize: '13px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          清除分析
+        </button>
+      )}
+    </Space>
+  )
+}
+
 const AnnotationPanel = () => {
   const {
     annotations,
@@ -1748,6 +1922,10 @@ const RightPanel = () => {
           <CollapsiblePanel title="标注工具" icon={Tag} defaultOpen={true}>
             <AnnotationPanel />
           </CollapsiblePanel>
+        )
+      case 'analysis':
+        return (
+          <AnalysisPanel />
         )
       default:
         return (
