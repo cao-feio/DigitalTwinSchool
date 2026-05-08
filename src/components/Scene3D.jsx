@@ -461,7 +461,10 @@ const SingleUserBuilding = ({ building, isFaded: externalIsFaded }) => {
     setSelectedModel, 
     transformMode,
     updateModel,
-    hasSelectedPipe
+    hasSelectedPipe,
+    currentTool,
+    measurementMode,
+    addMeasurementPoint
   } = useStore();
   const isFaded = hasSelectedPipe || externalIsFaded
 
@@ -515,7 +518,17 @@ const SingleUserBuilding = ({ building, isFaded: externalIsFaded }) => {
 
   const handlePointerDown = (e) => {
     e.stopPropagation();
-    setSelectedModel(selectedModel?.id === building.id ? null : building);
+    // 如果是在测量模式下，添加测量点
+    if (currentTool === 'measure' && measurementMode) {
+      // 获取点击点的世界坐标
+      const point = e.point;
+      if (point) {
+        addMeasurementPoint([point.x, point.y, point.z]);
+      }
+    } else {
+      // 否则选择模型
+      setSelectedModel(selectedModel?.id === building.id ? null : building);
+    }
   }
 
   const handleTransformChange = () => {

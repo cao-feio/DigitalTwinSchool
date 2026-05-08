@@ -541,11 +541,11 @@ const MeasurePanel = () => {
   }
 
   const requiredPoints = {
-    length: '∞',
-    height: 2,
-    area: 3,
-    angle: 3
-  }
+        length: '∞',
+        height: 1,
+        area: 3,
+        angle: 3
+      }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
@@ -589,11 +589,11 @@ const MeasurePanel = () => {
             )}
           </div>
           <div style={{ color: '#a0b8cc', fontSize: '11px', marginBottom: '10px' }}>
-            {measurementMode === 'length' && '点击地面选择任意多个点测量距离，双击结束测量'}
-            {measurementMode === 'height' && '点击两个点测量垂直高度差'}
-            {measurementMode === 'area' && '点击3个或更多点测量多边形面积'}
-            {measurementMode === 'angle' && '点击三个点（顶点在中间）测量角度'}
-          </div>
+          {measurementMode === 'length' && '点击地面选择任意多个点测量距离，双击结束测量'}
+          {measurementMode === 'height' && '点击任意一点（地面或模型表面）测量到地面的垂直高度'}
+          {measurementMode === 'area' && '点击3个或更多点测量多边形面积'}
+          {measurementMode === 'angle' && '点击三个点（顶点在中间）测量角度'}
+        </div>
           {measurementMode === 'length' && measurementPoints.length >= 2 && (
             <Button
               type="primary"

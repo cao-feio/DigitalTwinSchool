@@ -162,11 +162,10 @@ export const useStore = create((set, get) => ({
     return Math.abs(area / 2)
   },
   
-  // 计算高度差
+  // 计算点到地面的高度
   calculateHeight: (points) => {
-    if (points.length < 2) return 0
-    const heights = points.map(p => p[1])
-    return Math.abs(Math.max(...heights) - Math.min(...heights))
+    if (points.length < 1) return 0
+    return Math.abs(points[0][1]) // 直接返回点的 y 坐标绝对值（地面在 y=0）
   },
   
   // 计算角度（三点，中间的是顶点）
@@ -189,7 +188,9 @@ export const useStore = create((set, get) => ({
     set((state) => {
       const { measurementPoints, measurementMode } = state
       
-      if (measurementPoints.length < 2) return {}
+      // 高度测量只需要至少一个点，其他测量需要至少两个点
+      if (measurementMode === 'height' && measurementPoints.length < 1) return {}
+      if (measurementMode !== 'height' && measurementPoints.length < 2) return {}
       
       let calculatedData = {
         id: Date.now(),

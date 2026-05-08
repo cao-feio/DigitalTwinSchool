@@ -840,7 +840,7 @@ const BuildingWithTransform = ({ building, isSelected, isFaded, onClick }) => {
 };
 
 const Buildings = ({ isFaded: externalIsFaded }) => {
-  const { selectedModel, setSelectedModel, modelVisibility, hasSelectedPipe, models } = useStore()
+  const { selectedModel, setSelectedModel, modelVisibility, hasSelectedPipe, models, currentTool, measurementMode, addMeasurementPoint } = useStore()
 
   // 只渲染默认建筑（用户建筑在UserBuildings组件中渲染）
   const defaultBuildings = models.filter(m => !m.isCustom)
@@ -860,7 +860,17 @@ const Buildings = ({ isFaded: externalIsFaded }) => {
               isFaded={isFaded}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedModel(building);
+                // 如果是在测量模式下，添加测量点
+                if (currentTool === 'measure' && measurementMode) {
+                  // 获取点击点的世界坐标
+                  const point = e.point;
+                  if (point) {
+                    addMeasurementPoint([point.x, point.y, point.z]);
+                  }
+                } else {
+                  // 否则选择模型
+                  setSelectedModel(building);
+                }
               }}
             />
           </group>

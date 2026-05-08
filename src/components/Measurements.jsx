@@ -100,20 +100,28 @@ const AreaPolygon = ({ points, area }) => {
   
   return (
     <group>
-      {/* 多边形面 */}
+      {/* 多边形面 - 更明显的颜色和更高的不透明度 */}
       <mesh geometry={geometry} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.1, 0]}>
         <meshStandardMaterial 
-          color="#f59e0b" 
+          color="#10b981" 
           transparent 
-          opacity={0.3} 
+          opacity={0.6} 
           side={THREE.DoubleSide}
+          emissive="#10b981"
+          emissiveIntensity={0.2}
         />
       </mesh>
       
-      {/* 多边形轮廓 */}
-      <line rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.15, 0]}>
+      {/* 多边形轮廓 - 更粗更亮 */}
+      <lineSegments rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.15, 0]}>
+        <edgesGeometry args={[geometry]} />
+        <lineBasicMaterial color="#059669" linewidth={5} />
+      </lineSegments>
+      
+      {/* 额外的视觉效果 - 面的边框高亮 */}
+      <line rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.2, 0]}>
         <shapeGeometry args={[shape]} />
-        <lineBasicMaterial color="#f59e0b" linewidth={3} />
+        <lineBasicMaterial color="#34d399" linewidth={3} />
       </line>
       
       {/* 面积标注 */}
@@ -124,11 +132,11 @@ const AreaPolygon = ({ points, area }) => {
         </mesh>
         <mesh position={[0, 0, -0.06]}>
           <boxGeometry args={[2.6, 0.9, 0.01]} />
-          <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.5} />
+          <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={0.5} />
         </mesh>
         <Text
           position={[0, 0, 0.06]}
-          color="#f59e0b"
+          color="#34d399"
           fontSize={0.45}
           anchorX="center"
           anchorY="middle"
@@ -143,66 +151,65 @@ const AreaPolygon = ({ points, area }) => {
 
 // 高度测量可视化
 const HeightMeasurement = ({ points, height }) => {
-  if (!points || points.length < 2) return null
+  if (!points || points.length < 1) return null
   
-  const p1 = points[0]
-  const p2 = points[1]
-  const yMin = Math.min(p1[1], p2[1])
-  const yMax = Math.max(p1[1], p2[1])
-  const midX = (p1[0] + p2[0]) / 2
-  const midZ = (p1[2] + p2[2]) / 2
+  const point = points[0]
+  const groundY = 0 // 地面高度
   
   return (
     <group>
-      {/* 垂直高度线 */}
+      {/* 点到地面的垂直高度线 */}
       <Line
         points={[
-          [midX, yMin, midZ],
-          [midX, yMax, midZ]
+          [point[0], groundY, point[2]],
+          [point[0], point[1], point[2]]
         ]}
-        color="#00d4ff"
+        color="#3b82f6"
         lineWidth={5}
       />
       
-      {/* 水平参考线 */}
+      {/* 地面标记 */}
+      <mesh position={[point[0], groundY + 0.05, point[2]]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.3, 0.6, 32]} />
+        <meshBasicMaterial 
+          color="#3b82f6" 
+          transparent 
+          opacity={0.5} 
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      
+      {/* 垂直高度线的发光效果 */}
       <Line
         points={[
-          [p1[0], yMin, p1[2]],
-          [midX, yMin, midZ]
+          [point[0], groundY, point[2]],
+          [point[0], point[1], point[2]]
         ]}
-        color="#64748b"
-        lineWidth={2}
-        dashed
-      />
-      <Line
-        points={[
-          [p2[0], yMax, p2[2]],
-          [midX, yMax, midZ]
-        ]}
-        color="#64748b"
-        lineWidth={2}
-        dashed
+        color="#60a5fa"
+        lineWidth={3}
+        transparent
+        opacity={0.5}
       />
       
       {/* 高度标注 */}
-      <group position={[midX, (yMin + yMax) / 2, midZ]}>
+      <group position={[point[0], (groundY + point[1]) / 2, point[2]]}>
         <mesh position={[1.5, 0, 0]}>
           <boxGeometry args={[2, 0.8, 0.1]} />
           <meshStandardMaterial color="#0f2540" transparent opacity={0.95} />
         </mesh>
         <mesh position={[1.5, 0, -0.06]}>
           <boxGeometry args={[2.1, 0.9, 0.01]} />
-          <meshStandardMaterial color="#00d4ff" emissive="#00d4ff" emissiveIntensity={0.5} />
+          <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={0.5} />
         </mesh>
         <Text
           position={[1.5, 0, 0.06]}
-          color="#00d4ff"
+          color="#60a5fa"
           fontSize={0.45}
           anchorX="center"
           anchorY="middle"
           fontWeight="bold"
         >
-          {height ? `${height.toFixed(2)}m` : '计算中...'}
+          {height !== null ? `${height.toFixed(2)}m` : '计算中...'}
         </Text>
       </group>
     </group>
@@ -346,7 +353,7 @@ const Measurements = () => {
   
   if (measurementMode === 'area' && measurementPoints.length >= 3) {
     currentArea = calculatePolygonArea(measurementPoints)
-  } else if (measurementMode === 'height' && measurementPoints.length >= 2) {
+  } else if (measurementMode === 'height' && measurementPoints.length >= 1) {
     currentHeight = calculateHeight(measurementPoints)
   } else if (measurementMode === 'angle' && measurementPoints.length >= 3) {
     currentAngle = calculateAngle(measurementPoints)
@@ -364,7 +371,7 @@ const Measurements = () => {
         <AreaPolygon points={measurementPoints} area={currentArea} />
       )}
       
-      {measurementMode === 'height' && measurementPoints.length >= 2 && (
+      {measurementMode === 'height' && measurementPoints.length >= 1 && (
         <HeightMeasurement points={measurementPoints} height={currentHeight} />
       )}
       
