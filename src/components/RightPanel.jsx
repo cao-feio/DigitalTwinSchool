@@ -988,6 +988,8 @@ const PipeListPanel = () => {
     heat: true,
     communication: true
   })
+  const listContainerRef = React.useRef(null)
+  const selectedItemRef = React.useRef(null)
 
   const handleSelectPipe = (pipe) => {
     // 确保管线图层开启
@@ -1053,9 +1055,33 @@ const PipeListPanel = () => {
     return icons[type] || '🔧'
   }
 
+  // 当选中管线变化时，自动滚动到对应项
+  React.useEffect(() => {
+    if (selectedPipe && selectedItemRef.current && listContainerRef.current) {
+      // 确保该管线的分组是展开的
+      setOpenGroups(prev => ({
+        ...prev,
+        [selectedPipe.pipeType]: true
+      }))
+      
+      // 等待 DOM 更新后滚动
+      setTimeout(() => {
+        if (selectedItemRef.current && listContainerRef.current) {
+          selectedItemRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          })
+        }
+      }, 100)
+    }
+  }, [selectedPipe])
+
   return (
     <>
-      <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}>
+      <div 
+        ref={listContainerRef} 
+        style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}
+      >
         {Object.keys(pipeGroups).map(type => (
           <div key={type} style={{ marginBottom: '12px' }}>
             <div
@@ -1097,15 +1123,19 @@ const PipeListPanel = () => {
             {openGroups[type] && (
               <div style={{ paddingLeft: '8px' }}>
           {pipeGroups[type].map((pipe) => (
-            <PipeListItem
+            <div 
               key={pipe.id}
-              pipe={pipe}
-              isSelected={selectedPipe?.id === pipe.id}
-              isVisible={modelVisibility[pipe.id] !== false}
-              onSelect={handleSelectPipe}
-              onToggleVisibility={toggleModelVisibility}
-              onLocate={handleLocate}
-            />
+              ref={selectedPipe?.id === pipe.id ? selectedItemRef : null}
+            >
+              <PipeListItem
+                pipe={pipe}
+                isSelected={selectedPipe?.id === pipe.id}
+                isVisible={modelVisibility[pipe.id] !== false}
+                onSelect={handleSelectPipe}
+                onToggleVisibility={toggleModelVisibility}
+                onLocate={handleLocate}
+              />
+            </div>
           ))}
               </div>
             )}
@@ -1278,7 +1308,7 @@ const RightPanel = () => {
       case 'pipes':
         return (
           <>
-            <CollapsiblePanel title="管网系统" icon={Layers} defaultOpen={true}>
+            <CollapsiblePanel title="管线列表" icon={Layers} defaultOpen={true}>
               <PipeListPanel />
             </CollapsiblePanel>
             {selectedPipe && (
