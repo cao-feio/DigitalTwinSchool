@@ -1277,6 +1277,8 @@ const AnalysisPanel = () => {
     setAnalysisViewpoint,
     sunPosition,
     setSunPosition,
+    viewshedSettings,
+    setViewshedSettings,
     clearAnalysisResults
   } = useStore()
 
@@ -1339,8 +1341,10 @@ const AnalysisPanel = () => {
             可视化范围分析设置
           </div>
           <div style={{ color: '#a0b8cc', fontSize: '11px', marginBottom: '12px' }}>
-            点击地面选择观察点，系统将显示从该点的可见范围
+            点击地面选择观察点，系统将模拟正常人的视角显示前方可见范围
           </div>
+          
+          {/* 观察点信息 */}
           {analysisViewpoint && (
             <div style={{
               padding: '8px',
@@ -1353,10 +1357,76 @@ const AnalysisPanel = () => {
                 ✓ 已设置观察点
               </div>
               <div style={{ color: '#a0b8cc', fontSize: '10px', marginTop: '4px' }}>
-                位置: [{analysisViewpoint[0].toFixed(1)}, {analysisViewpoint[1].toFixed(1)}, {analysisViewpoint[2].toFixed(1)}]
+                位置: [{analysisViewpoint[0].toFixed(1)}, {viewshedSettings.viewHeight.toFixed(1)}, {analysisViewpoint[2].toFixed(1)}]
               </div>
             </div>
           )}
+
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            {/* 观察高度 */}
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                观察高度: {viewshedSettings.viewHeight.toFixed(1)}m
+              </label>
+              <input
+                type="range"
+                min="0.5"
+                max="3"
+                step="0.1"
+                value={viewshedSettings.viewHeight}
+                onChange={(e) => setViewshedSettings({ viewHeight: parseFloat(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            {/* 水平视场角 */}
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                水平视场角: {viewshedSettings.horizontalFOV}°
+              </label>
+              <input
+                type="range"
+                min="30"
+                max="180"
+                step="5"
+                value={viewshedSettings.horizontalFOV}
+                onChange={(e) => setViewshedSettings({ horizontalFOV: parseInt(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            {/* 垂直视场角 */}
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                垂直视场角: {viewshedSettings.verticalFOV}°
+              </label>
+              <input
+                type="range"
+                min="20"
+                max="90"
+                step="5"
+                value={viewshedSettings.verticalFOV}
+                onChange={(e) => setViewshedSettings({ verticalFOV: parseInt(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            {/* 可视距离 */}
+            <div>
+              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                可视距离: {viewshedSettings.range}m
+              </label>
+              <input
+                type="range"
+                min="20"
+                max="300"
+                step="10"
+                value={viewshedSettings.range}
+                onChange={(e) => setViewshedSettings({ range: parseInt(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+            </div>
+          </Space>
         </div>
       )}
 
@@ -1371,50 +1441,207 @@ const AnalysisPanel = () => {
           <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
             日照分析设置
           </div>
+
+          {/* 模式切换 */}
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setSunPosition({ useTimeMode: false })}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  background: !sunPosition.useTimeMode ? 'rgba(24, 144, 255, 0.2)' : 'rgba(40, 55, 75, 0.6)',
+                  border: !sunPosition.useTimeMode ? '1px solid #1890ff' : '1px solid rgba(100, 150, 200, 0.3)',
+                  borderRadius: '6px',
+                  color: !sunPosition.useTimeMode ? '#1890ff' : '#a0b8cc',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                角度模式
+              </button>
+              <button
+                onClick={() => setSunPosition({ useTimeMode: true })}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  background: sunPosition.useTimeMode ? 'rgba(24, 144, 255, 0.2)' : 'rgba(40, 55, 75, 0.6)',
+                  border: sunPosition.useTimeMode ? '1px solid #1890ff' : '1px solid rgba(100, 150, 200, 0.3)',
+                  borderRadius: '6px',
+                  color: sunPosition.useTimeMode ? '#1890ff' : '#a0b8cc',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                时间模式
+              </button>
+            </div>
+          </div>
           
           <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            <div>
-              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-                方位角: {sunPosition.azimuth}°
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="360"
-                step="5"
-                value={sunPosition.azimuth}
-                onChange={(e) => setSunPosition({ ...sunPosition, azimuth: parseInt(e.target.value) })}
-                style={{ width: '100%' }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#666', marginTop: '2px' }}>
-                <span>0°</span>
-                <span>180°</span>
-                <span>360°</span>
-              </div>
-            </div>
+            {!sunPosition.useTimeMode ? (
+              <>
+                {/* 方位角 */}
+                <div>
+                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                    方位角: {sunPosition.azimuth}°
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="360"
+                    step="5"
+                    value={sunPosition.azimuth}
+                    onChange={(e) => setSunPosition({ azimuth: parseInt(e.target.value) })}
+                    style={{ width: '100%' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#666', marginTop: '2px' }}>
+                    <span>0°</span>
+                    <span>180°</span>
+                    <span>360°</span>
+                  </div>
+                </div>
 
-            <div>
-              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-                高度角: {sunPosition.altitude}°
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="90"
-                step="5"
-                value={sunPosition.altitude}
-                onChange={(e) => setSunPosition({ ...sunPosition, altitude: parseInt(e.target.value) })}
-                style={{ width: '100%' }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#666', marginTop: '2px' }}>
-                <span>0°</span>
-                <span>45°</span>
-                <span>90°</span>
+                {/* 高度角 */}
+                <div>
+                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                    高度角: {sunPosition.altitude}°
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="90"
+                    step="5"
+                    value={sunPosition.altitude}
+                    onChange={(e) => setSunPosition({ altitude: parseInt(e.target.value) })}
+                    style={{ width: '100%' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#666', marginTop: '2px' }}>
+                    <span>0°</span>
+                    <span>45°</span>
+                    <span>90°</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 日期 */}
+                <div>
+                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                    日期: {sunPosition.month}月{sunPosition.day}日
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ color: '#888', fontSize: '10px' }}>月</label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="12"
+                        step="1"
+                        value={sunPosition.month}
+                        onChange={(e) => setSunPosition({ month: parseInt(e.target.value) })}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ color: '#888', fontSize: '10px' }}>日</label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="31"
+                        step="1"
+                        value={sunPosition.day}
+                        onChange={(e) => setSunPosition({ day: parseInt(e.target.value) })}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 时间 */}
+                <div>
+                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                    时间: {sunPosition.hour.toString().padStart(2, '0')}:{sunPosition.minute.toString().padStart(2, '0')}
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ color: '#888', fontSize: '10px' }}>时</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="23"
+                        step="1"
+                        value={sunPosition.hour}
+                        onChange={(e) => setSunPosition({ hour: parseInt(e.target.value) })}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ color: '#888', fontSize: '10px' }}>分</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="59"
+                        step="5"
+                        value={sunPosition.minute}
+                        onChange={(e) => setSunPosition({ minute: parseInt(e.target.value) })}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 经纬度 */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div>
+                    <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                      纬度: {sunPosition.latitude.toFixed(1)}°
+                    </label>
+                    <InputNumber
+                      min={-90}
+                      max={90}
+                      step={0.1}
+                      value={sunPosition.latitude}
+                      onChange={(v) => setSunPosition({ latitude: v })}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                      经度: {sunPosition.longitude.toFixed(1)}°
+                    </label>
+                    <InputNumber
+                      min={-180}
+                      max={180}
+                      step={0.1}
+                      value={sunPosition.longitude}
+                      onChange={(v) => setSunPosition({ longitude: v })}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* 分析点信息 */}
+            {analysisViewpoint && (
+              <div style={{
+                padding: '8px',
+                background: 'rgba(245, 158, 11, 0.1)',
+                borderRadius: '4px',
+                border: '1px solid rgba(245, 158, 11, 0.3)'
+              }}>
+                <div style={{ color: '#f59e0b', fontSize: '12px' }}>
+                  ✓ 已设置分析点
+                </div>
+                <div style={{ color: '#a0b8cc', fontSize: '10px', marginTop: '4px' }}>
+                  位置: [{analysisViewpoint[0].toFixed(1)}, {analysisViewpoint[1].toFixed(1)}, {analysisViewpoint[2].toFixed(1)}]
+                </div>
               </div>
-            </div>
+            )}
 
             <div style={{ color: '#a0b8cc', fontSize: '11px', marginTop: '8px' }}>
-              点击地面选择分析点，查看该点的日照情况
+              点击地面选择分析点，查看该点的日照和阴影情况
             </div>
           </Space>
         </div>

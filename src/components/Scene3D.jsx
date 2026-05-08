@@ -674,50 +674,114 @@ const AnnotationPositionPreview = () => {
 }
 
 const ViewShedAnalysis = () => {
-  const { analysisViewpoint } = useStore()
+  const { analysisViewpoint, viewshedSettings } = useStore()
   
   if (!analysisViewpoint) return null
 
-  const range = 100
+  const range = viewshedSettings?.range || 100
+  const horizontalFOV = viewshedSettings?.horizontalFOV || 90 // 水平视场角，模拟正常人眼
+  const verticalFOV = viewshedSettings?.verticalFOV || 60 // 垂直视场角，正常人眼约120度，但只看前方，限制为60度
+  const viewHeight = viewshedSettings?.viewHeight || 1.7 // 正常人眼高度
   const segments = 64
+
+  // 创建扇形体几何体（只显示前方，不显示上方）
+  const createSectorGeometry = (radius, hFov, vFov, seg) => {
+    const geometry = new THREE.BufferGeometry()
+    const vertices = []
+    const indices = []
+
+    // 中心点
+    vertices.push(0, 0, 0)
+
+    // 生成扇形体的顶点（只在前半部分）
+    const hFovRad = THREE.MathUtils.degToRad(hFov)
+    const vFovRad = THREE.MathUtils.degToRad(vFov)
+    
+    // 水平方向：-hFov/2 到 hFov/2
+    for (let i = 0; i <= seg; i++) {
+      const hAngle = -hFovRad / 2 + (hFovRad * i) / seg
+      // 垂直方向：-vFov/2 到 0（只显示前方和下方，不显示上方）
+      for (let j = 0; j <= seg / 2; j++) {
+        const vAngle = -vFovRad / 2 + (vFovRad * j) / (seg / 2)
+        const x = Math.sin(hAngle) * Math.cos(vAngle) * radius
+        const y = Math.sin(vAngle) * radius
+        const z = Math.cos(hAngle) * Math.cos(vAngle) * radius
+        vertices.push(x, y, z)
+      }
+    }
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
+    
+    // 生成面索引
+    const pointsPerRow = seg / 2 + 1
+    for (let i = 0; i < seg; i++) {
+      for (let j = 0; j < seg / 2; j++) {
+        const a = 1 + i * pointsPerRow + j
+        const b = a + pointsPerRow
+        const c = a + 1
+        const d = b + 1
+        indices.push(0, a, b)
+        indices.push(a, c, b)
+        indices.push(c, d, b)
+      }
+    }
+    geometry.setIndex(indices)
+    geometry.computeVertexNormals()
+    return geometry
+  }
+
+  // 调整观察点高度到正常人眼高度
+  const adjustedViewpoint = [analysisViewpoint[0], viewHeight, analysisViewpoint[2]]
 
   return (
     <group>
       {/* 观察点标记 */}
-      <group position={analysisViewpoint}>
+      <group position={adjustedViewpoint}>
         <mesh>
-          <sphereGeometry args={[1.5, 24, 24]} />
-          <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={0.8} />
+          <sphereGeometry args={[0.5, 16, 16]} />
+          <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={1} />
         </mesh>
-        <Text position={[0, 4, 0]} color="#3b82f6" fontSize={1.5} anchorX="center" outlineWidth={0.05} outlineColor="#000">观察点</Text>
+        {/* 人物模型示意 */}
+        <mesh position={[0, -0.85, 0]}>
+          <cylinderGeometry args={[0.25, 0.3, 1.4, 8]} />
+          <meshStandardMaterial color="#475569" />
+        </mesh>
+        <Text position={[0, 2.5, 0]} color="#3b82f6" fontSize={1.2} anchorX="center" outlineWidth={0.05} outlineColor="#000">观察点</Text>
       </group>
 
-      {/* 可见范围圆锥体 */}
-      <mesh position={analysisViewpoint}>
-        <coneGeometry args={[range, range * 0.8, segments, 1, true]} />
-        <meshBasicMaterial color="rgba(59, 130, 246, 0.15)" side={THREE.DoubleSide} transparent />
+      {/* 可见范围扇形体 */}
+      <mesh position={adjustedViewpoint}>
+        <primitive object={createSectorGeometry(range, horizontalFOV, verticalFOV, segments)} />
+        <meshBasicMaterial color="rgba(59, 130, 246, 0.15)" side={THREE.DoubleSide} transparent depthWrite={false} />
       </mesh>
 
-      {/* 地面范围圆环 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[analysisViewpoint[0], 0.02, analysisViewpoint[2]]}>
-        <ringGeometry args={[0, range, segments]} />
+      {/* 半透明填充扇形体（更明显的可视化） */}
+      <mesh position={adjustedViewpoint}>
+        <primitive object={createSectorGeometry(range, horizontalFOV, verticalFOV, segments)} />
+        <meshBasicMaterial color="rgba(59, 130, 246, 0.1)" side={THREE.DoubleSide} transparent wireframe={false} />
+      </mesh>
+
+      {/* 地面范围扇形 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[adjustedViewpoint[0], 0.02, adjustedViewpoint[2]]}>
+        <ringGeometry args={[0, range, segments, 1, -Math.PI / 2 - THREE.MathUtils.degToRad(horizontalFOV) / 2, THREE.MathUtils.degToRad(horizontalFOV)]} />
         <meshBasicMaterial color="rgba(59, 130, 246, 0.25)" side={THREE.DoubleSide} transparent />
       </mesh>
 
-      {/* 网格辅助线 */}
+      {/* 网格辅助线 - 只显示前方的射线 */}
       {Array.from({ length: 8 }).map((_, i) => {
-        const angle = (i / 8) * Math.PI * 2
+        // 只显示前方的射线，从 -horizontalFOV/2 到 horizontalFOV/2
+        const angle = -Math.PI / 2 - THREE.MathUtils.degToRad(horizontalFOV) / 2 + (THREE.MathUtils.degToRad(horizontalFOV) * i) / 7
         const x = Math.sin(angle) * range
         const z = Math.cos(angle) * range
         return (
-          <line key={[0, 0, 0]}>
+          <line key={i}>
             <bufferGeometry>
               <bufferAttribute
                 attach="attributes-position"
                 count={2}
                 array={new Float32Array([
-                  analysisViewpoint[0], analysisViewpoint[1], analysisViewpoint[2],
-                  analysisViewpoint[0] + x, 0, analysisViewpoint[2] + z
+                  adjustedViewpoint[0], adjustedViewpoint[1], adjustedViewpoint[2],
+                  adjustedViewpoint[0] + x, 0, adjustedViewpoint[2] + z
                 ])}
                 itemSize={3}
               />
@@ -727,55 +791,174 @@ const ViewShedAnalysis = () => {
         )
       })}
 
-      {/* 范围边界线 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[analysisViewpoint[0], 0.03, analysisViewpoint[2]]}>
-        <ringGeometry args={[range * 0.99, range, segments]} />
-        <meshBasicMaterial color="rgba(59, 130, 246, 0.5)" side={THREE.DoubleSide} />
-      </mesh>
+      {/* 前方视野边界线 */}
+      <group position={adjustedViewpoint}>
+        <line>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              count={2}
+              array={new Float32Array([
+                0, 0, 0,
+                Math.sin(-Math.PI / 2 - THREE.MathUtils.degToRad(horizontalFOV) / 2) * range, 0, Math.cos(-Math.PI / 2 - THREE.MathUtils.degToRad(horizontalFOV) / 2) * range
+              ])}
+              itemSize={3}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color="rgba(239, 68, 68, 0.8)" linewidth={3} />
+        </line>
+        <line>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              count={2}
+              array={new Float32Array([
+                0, 0, 0,
+                Math.sin(-Math.PI / 2 + THREE.MathUtils.degToRad(horizontalFOV) / 2) * range, 0, Math.cos(-Math.PI / 2 + THREE.MathUtils.degToRad(horizontalFOV) / 2) * range
+              ])}
+              itemSize={3}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color="rgba(239, 68, 68, 0.8)" linewidth={3} />
+        </line>
+      </group>
+
+      {/* 信息提示 */}
+      <Text 
+        position={[adjustedViewpoint[0], viewHeight + 3, adjustedViewpoint[2]]} 
+        color="#60a5fa" 
+        fontSize={0.8} 
+        anchorX="center"
+        outlineWidth={0.08}
+        outlineColor="#000"
+      >
+        正常人视野范围 (水平{horizontalFOV}°)
+      </Text>
     </group>
   )
 }
 
 const SunlightAnalysis = () => {
-  const { sunPosition, analysisViewpoint } = useStore()
+  const { sunPosition, analysisViewpoint, sunlightSettings } = useStore()
   
-  const azimuthRad = THREE.MathUtils.degToRad(sunPosition.azimuth)
-  const altitudeRad = THREE.MathUtils.degToRad(sunPosition.altitude)
-  const distance = 200
+  const { azimuth, altitude, hour, minute, month, day, latitude, longitude, useTimeMode } = sunPosition
+
+  // 计算太阳位置
+  let finalAzimuth = azimuth
+  let finalAltitude = altitude
+
+  // 如果使用时间模式，根据时间计算太阳位置
+  if (useTimeMode) {
+    // 简化的太阳位置计算（基于日期和经纬度）
+    const dayOfYear = month * 30 + day // 简化计算
+    const declination = 23.45 * Math.sin(((360 / 365) * (dayOfYear - 81)) * Math.PI / 180)
+    
+    const hourAngle = (hour - 12) * 15 + (minute / 60) * 15 // 每小时15度
+    
+    const latRad = latitude * Math.PI / 180
+    const decRad = declination * Math.PI / 180
+    const haRad = hourAngle * Math.PI / 180
+    
+    // 计算高度角
+    const sinAltitude = Math.sin(latRad) * Math.sin(decRad) + 
+                       Math.cos(latRad) * Math.cos(decRad) * Math.cos(haRad)
+    finalAltitude = Math.asin(sinAltitude) * 180 / Math.PI
+    
+    // 计算方位角
+    if (finalAltitude > 0) {
+      const cosAzimuth = (Math.sin(decRad) - Math.sin(latRad) * Math.sin(finalAltitude * Math.PI / 180)) / 
+                        (Math.cos(latRad) * Math.cos(finalAltitude * Math.PI / 180))
+      finalAzimuth = Math.acos(Math.max(-1, Math.min(1, cosAzimuth))) * 180 / Math.PI
+      if (hour > 12) finalAzimuth = 360 - finalAzimuth // 下午在西边
+    }
+  }
+
+  const azimuthRad = THREE.MathUtils.degToRad(finalAzimuth)
+  const altitudeRad = THREE.MathUtils.degToRad(Math.max(0, finalAltitude))
+  const distance = 300
   const sunX = Math.sin(azimuthRad) * Math.cos(altitudeRad) * distance
   const sunY = Math.sin(altitudeRad) * distance
   const sunZ = Math.cos(azimuthRad) * Math.cos(altitudeRad) * distance
 
+  // 计算分析点的阴影长度（如果有分析点）
+  let shadowLength = 0
+  if (analysisViewpoint && finalAltitude > 0) {
+    shadowLength = analysisViewpoint[1] / Math.tan(altitudeRad)
+  }
+
   return (
     <group>
       {/* 太阳标记 */}
-      <group position={[sunX, sunY, sunZ]}>
-        <mesh>
-          <sphereGeometry args={[10, 32, 32]} />
-          <meshBasicMaterial color="#ffdd44" />
-        </mesh>
-        {/* 太阳光晕 */}
-        <mesh>
-          <sphereGeometry args={[15, 32, 32]} />
-          <meshBasicMaterial color="rgba(255, 221, 68, 0.3)" transparent />
-        </mesh>
-        <pointLight color="#fff" intensity={4} distance={600} decay={1.5} castShadow />
-        <Text position={[0, 18, 0]} color="#ffdd44" fontSize={3} anchorX="center" outlineWidth={0.1} outlineColor="#000">太阳</Text>
-      </group>
+      {finalAltitude > 0 ? (
+        <group position={[sunX, sunY, sunZ]}>
+          {/* 太阳核心 */}
+          <mesh>
+            <sphereGeometry args={[12, 32, 32]} />
+            <meshStandardMaterial 
+              color="#ffdd44" 
+              emissive="#ffaa00" 
+              emissiveIntensity={2}
+            />
+          </mesh>
+          {/* 太阳光晕内层 */}
+          <mesh>
+            <sphereGeometry args={[18, 32, 32]} />
+            <meshBasicMaterial color="rgba(255, 200, 50, 0.4)" transparent />
+          </mesh>
+          {/* 太阳光晕外层 */}
+          <mesh>
+            <sphereGeometry args={[25, 32, 32]} />
+            <meshBasicMaterial color="rgba(255, 150, 0, 0.2)" transparent />
+          </mesh>
+          {/* 太阳光 */}
+          <pointLight 
+            color="#fff7e0" 
+            intensity={5} 
+            distance={800} 
+            decay={1.2} 
+            castShadow 
+          />
+          {/* 太阳标签 */}
+          <Text position={[0, 22, 0]} color="#ffdd44" fontSize={3} anchorX="center" outlineWidth={0.12} outlineColor="#000">
+            {useTimeMode ? `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}` : '太阳'}
+          </Text>
+          {/* 太阳角度信息 */}
+          <Text position={[0, 17, 0]} color="#f59e0b" fontSize={1.2} anchorX="center" outlineWidth={0.08} outlineColor="#000">
+            方位:{Math.round(finalAzimuth)}° 高度:{Math.round(finalAltitude)}°
+          </Text>
+        </group>
+      ) : (
+        <group>
+          {/* 月亮/夜间模式 */}
+          <mesh position={[sunX, Math.max(10, sunY), sunZ]}>
+            <sphereGeometry args={[8, 32, 32]} />
+            <meshStandardMaterial 
+              color="#e0e0ff" 
+              emissive="#8080c0" 
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+          <Text position={[sunX, Math.max(10, sunY) + 12, sunZ]} color="#a0a0ff" fontSize={2} anchorX="center" outlineWidth={0.08} outlineColor="#000">
+            夜间
+          </Text>
+        </group>
+      )}
 
       {/* 太阳光线方向指示 */}
-      <group position={[sunX * 0.5, sunY * 0.5, sunZ * 0.5]}>
-        <arrowHelper
-          args={[
-            new THREE.Vector3(sunX, sunY, sunZ).normalize().negate(),
-            new THREE.Vector3(0, 0, 0),
-            30,
-            '#ffdd44'
-          ]}
-        />
-      </group>
+      {finalAltitude > 0 && (
+        <group position={[sunX * 0.6, sunY * 0.6, sunZ * 0.6]}>
+          <arrowHelper
+            args={[
+              new THREE.Vector3(sunX, sunY, sunZ).normalize().negate(),
+              new THREE.Vector3(0, 0, 0),
+              40,
+              '#ffdd44'
+            ]}
+          />
+        </group>
+      )}
 
-      {analysisViewpoint && (
+      {analysisViewpoint && finalAltitude > 0 && (
         <>
           {/* 太阳光线到分析点 */}
           <line>
@@ -787,55 +970,106 @@ const SunlightAnalysis = () => {
                 itemSize={3}
               />
             </bufferGeometry>
-            <lineBasicMaterial color="#ffdd44" transparent opacity={0.7} linewidth={3} />
+            <lineBasicMaterial color="#ffdd44" transparent opacity={0.8} linewidth={2} />
           </line>
           
           {/* 分析点标记 */}
           <group position={analysisViewpoint}>
             <mesh>
-              <sphereGeometry args={[1.5, 24, 24]} />
-              <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.5} />
+              <sphereGeometry args={[1.2, 24, 24]} />
+              <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} />
             </mesh>
-            <Text position={[0, 4, 0]} color="#f59e0b" fontSize={1.5} anchorX="center" outlineWidth={0.05} outlineColor="#000">分析点</Text>
+            <Text position={[0, 3.5, 0]} color="#f59e0b" fontSize={1.2} anchorX="center" outlineWidth={0.05} outlineColor="#000">分析点</Text>
           </group>
 
           {/* 分析点阴影指示 */}
           <group>
             <mesh position={[analysisViewpoint[0], 0.05, analysisViewpoint[2]]}>
-              <cylinderGeometry args={[0.5, 0.5, 0.1, 16]} />
-              <meshBasicMaterial color="rgba(0, 0, 0, 0.5)" />
+              <cylinderGeometry args={[0.4, 0.4, 0.1, 16]} />
+              <meshBasicMaterial color="rgba(0, 0, 0, 0.6)" />
             </mesh>
+            
+            {/* 阴影方向线 */}
+            <line>
+              <bufferGeometry>
+                <bufferAttribute
+                  attach="attributes-position"
+                  count={2}
+                  array={new Float32Array([
+                    analysisViewpoint[0], 0.06, analysisViewpoint[2],
+                    analysisViewpoint[0] + Math.sin(azimuthRad + Math.PI) * shadowLength, 
+                    0.06, 
+                    analysisViewpoint[2] + Math.cos(azimuthRad + Math.PI) * shadowLength
+                  ])}
+                  itemSize={3}
+                />
+              </bufferGeometry>
+              <lineBasicMaterial color="rgba(0, 0, 0, 0.8)" linewidth={3} />
+            </line>
+            
+            {/* 阴影长度标记 */}
+            <Text 
+              position={[
+                analysisViewpoint[0] + Math.sin(azimuthRad + Math.PI) * shadowLength / 2,
+                1.5,
+                analysisViewpoint[2] + Math.cos(azimuthRad + Math.PI) * shadowLength / 2
+              ]}
+              color="#6b7280"
+              fontSize={1}
+              anchorX="center"
+              outlineWidth={0.05}
+              outlineColor="#000"
+            >
+              阴影: {shadowLength.toFixed(1)}m
+            </Text>
           </group>
         </>
       )}
 
       {/* 阴影接收地面 */}
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[500, 500]} />
-        <shadowMaterial opacity={0.4} />
+        <planeGeometry args={[600, 600]} />
+        <shadowMaterial opacity={0.5} />
       </mesh>
 
-      {/* 方向光用于阴影计算 */}
-      <directionalLight
-        position={[sunX, sunY, sunZ]}
-        intensity={2.5}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-200}
-        shadow-camera-right={200}
-        shadow-camera-top={200}
-        shadow-camera-bottom={-200}
+      {/* 环境光（根据时间调整亮度） */}
+      <ambientLight 
+        intensity={finalAltitude > 0 ? Math.max(0.3, finalAltitude / 90) : 0.1} 
+        color={finalAltitude > 0 ? "#fff7e0" : "#303060"} 
       />
+
+      {/* 方向光用于阴影计算 */}
+      {finalAltitude > 0 && (
+        <directionalLight
+          position={[sunX, sunY, sunZ]}
+          intensity={Math.max(1, finalAltitude / 30)}
+          color="#fff7e0"
+          castShadow
+          shadow-mapSize={[2048, 2048]}
+          shadow-camera-left={-250}
+          shadow-camera-right={250}
+          shadow-camera-top={250}
+          shadow-camera-bottom={-250}
+          shadow-camera-near={1}
+          shadow-camera-far={1000}
+          shadow-bias={-0.0001}
+        >
+          <orthographicCamera attach="shadow-camera" args={[-250, 250, 250, -250]} />
+        </directionalLight>
+      )}
     </group>
   )
 }
 
 const Scene3DContent = () => {
-  const { layers, analysisMode, hasSelectedPipe, setSelectedPipe, setHasSelectedPipe, selectedPipe } = useStore()
+  const { layers, analysisMode, hasSelectedPipe, setSelectedPipe, setHasSelectedPipe, selectedPipe, sunPosition } = useStore()
 
   const handleSceneClick = (e) => {
     // 暂时禁用点击空白处取消管线选中的功能，避免误触发
   }
+
+  // 根据日照分析模式决定是否显示默认太阳和天空
+  const isSunlightMode = analysisMode === 'sunlight'
 
   return (
     <Canvas
@@ -849,30 +1083,31 @@ const Scene3DContent = () => {
       gl={{ 
         antialias: true,
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.2,
+        toneMappingExposure: isSunlightMode ? 1.5 : 1.2,
         shadowMapType: THREE.PCFSoftShadowMap,
         logarithmicDepthBuffer: true
       }}
       onClick={handleSceneClick}
     >
-      <Sky sunPosition={[100, 100, 80]} turbidity={0.3} rayleigh={0.5} mieCoefficient={0.007} />
-      
-      <ambientLight intensity={1.5} color="#e0f0ff" />
-      
-      <directionalLight
-        position={[100, 100, 80]}
-        intensity={2.5}
-        color="#fffef0"
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.0001}
-      >
-        <orthographicCamera attach="shadow-camera" args={[-200, 200, 200, -200, 0.1, 1000]} />
-      </directionalLight>
-      
-      <hemisphereLight intensity={1.0} groundColor="#3a5a3a" skyColor="#87ceeb" />
+      {!isSunlightMode && (
+        <>
+          <Sky sunPosition={[100, 100, 80]} turbidity={0.3} rayleigh={0.5} mieCoefficient={0.007} />
+          <ambientLight intensity={1.5} color="#e0f0ff" />
+          <directionalLight
+            position={[100, 100, 80]}
+            intensity={2.5}
+            color="#fffef0"
+            castShadow
+            shadow-mapSize={[2048, 2048]}
+            shadow-bias={-0.0001}
+          >
+            <orthographicCamera attach="shadow-camera" args={[-200, 200, 200, -200, 0.1, 1000]} />
+          </directionalLight>
+          <hemisphereLight intensity={1.0} groundColor="#3a5a3a" skyColor="#87ceeb" />
+        </>
+      )}
 
-      <Sun />
+      {!isSunlightMode && <Sun />}
       <Clouds />
       
       <Grid

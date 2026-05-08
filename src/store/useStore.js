@@ -309,11 +309,34 @@ export const useStore = create((set, get) => ({
   // 分析工具
   analysisMode: null,
   analysisViewpoint: null,
-  sunPosition: { azimuth: 180, altitude: 45 },
+  // 日照分析设置
+  sunPosition: { 
+    azimuth: 180, 
+    altitude: 45,
+    hour: 12,
+    minute: 0,
+    month: 6,
+    day: 21,
+    latitude: 39.9, // 北京纬度
+    longitude: 116.4, // 北京经度
+    useTimeMode: false // 默认使用角度模式
+  },
+  // 视域分析设置
+  viewshedSettings: {
+    range: 100,
+    horizontalFOV: 90,
+    verticalFOV: 60,
+    viewHeight: 1.7
+  },
   analysisResults: [],
   setAnalysisMode: (mode) => set({ analysisMode: mode }),
   setAnalysisViewpoint: (point) => set({ analysisViewpoint: point }),
-  setSunPosition: (pos) => set({ sunPosition: pos }),
+  setSunPosition: (pos) => set((state) => ({ 
+    sunPosition: { ...state.sunPosition, ...pos } 
+  })),
+  setViewshedSettings: (settings) => set((state) => ({
+    viewshedSettings: { ...state.viewshedSettings, ...settings }
+  })),
   addAnalysisResult: (result) => 
     set((state) => ({ analysisResults: [...state.analysisResults, result] })),
   clearAnalysisResults: () => set({ analysisResults: [], analysisMode: null, analysisViewpoint: null }),
