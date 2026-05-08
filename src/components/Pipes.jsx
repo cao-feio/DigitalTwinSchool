@@ -691,12 +691,7 @@ const Pipes = () => {
     setCurrentTool, 
     layers, 
     toggleLayer,
-    customPipes,
-    pipeGenPoints,
-    pipeGenParams,
-    pipeGenMode,
-    addPipeGenPoint,
-    clearPipeGenPoints
+    customPipes
   } = useStore()
 
   const handlePipeClick = (e, pipe) => {

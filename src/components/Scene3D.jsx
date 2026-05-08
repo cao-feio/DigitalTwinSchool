@@ -369,52 +369,7 @@ const BuildingPreview = () => {
   )
 }
 
-const PipeGenPreview = () => {
-  const { pipeGenPoints, pipeGenParams } = useStore()
-  
-  if (pipeGenPoints.length < 1) return null
-  
-  const pipeTypeColors = {
-    water: '#3498db',
-    drain: '#5d6d7e',
-    power: '#f1c40f',
-    gas: '#e74c3c',
-    heat: '#e67e22',
-    communication: '#9b59b6'
-  }
-  
-  const color = pipeTypeColors[pipeGenParams.pipeType] || '#3498db'
-  
-  const createLineGeometry = (points) => {
-    const positions = []
-    for (let i = 0; i < points.length; i++) {
-      positions.push(points[i][0], points[i][1] + 0.5, points[i][2])
-    }
-    const geometry = new THREE.BufferGeometry()
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-    return geometry
-  }
 
-  return (
-    <group>
-      {/* 绘制点 */}
-      {pipeGenPoints.map((p, i) => (
-        <mesh key={`pipe-point-${i}`} position={[p[0], 0.5, p[2]]}>
-          <sphereGeometry args={[0.3, 12, 12]} />
-          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
-        </mesh>
-      ))}
-      
-      {/* 连接线 */}
-      {pipeGenPoints.length >= 2 && (
-        <line>
-          <primitive object={createLineGeometry(pipeGenPoints)} />
-          <lineBasicMaterial color={color} linewidth={3} />
-        </line>
-      )}
-    </group>
-  )
-}
 
 const GroundInteractor = () => {
   const { 
@@ -434,10 +389,7 @@ const GroundInteractor = () => {
     finishCurrentMeasurement,
     isSelectingAnnotationPosition,
     setTempAnnotationPosition,
-    cancelSelectingAnnotationPosition,
-    pipeGenMode,
-    addPipeGenPoint,
-    pipeGenPoints
+    cancelSelectingAnnotationPosition
   } = useStore()
   
   const [isDragging, setIsDragging] = useState(false);
@@ -485,8 +437,6 @@ const GroundInteractor = () => {
       addMeasurementPoint([x, y, z])
     } else if (currentTool === 'analysis' && analysisMode) {
       setAnalysisViewpoint([x, y + 2, z])
-    } else if (pipeGenMode) {
-      addPipeGenPoint([x, y, z])
     }
   }
 
@@ -1190,7 +1140,6 @@ const Scene3DContent = () => {
         <GroundInteractor />
         <Measurements />
         <BuildingPreview />
-        <PipeGenPreview />
         <AnnotationPositionPreview />
         
         {analysisMode === 'viewshed' && <ViewShedAnalysis />}
