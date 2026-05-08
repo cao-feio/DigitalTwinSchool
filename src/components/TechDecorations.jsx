@@ -104,19 +104,7 @@ export const CornerDecoration = () => (
   </>
 )
 
-export const DataPanel = () => (
-  <div style={{
-    display: 'flex',
-    gap: '35px',
-    zIndex: '5',
-    pointerEvents: 'none'
-  }}>
-    <DataCard label="总建筑面积" value="85,600" unit="㎡" color="#00d4ff" />
-    <DataCard label="建筑数量" value="12" unit="栋" color="#60a5fa" />
-    <DataCard label="管线总长" value="3.2" unit="km" color="#8b5cf6" />
-    <DataCard label="在线设备" value="426" unit="台" color="#f59e0b" />
-  </div>
-)
+export const DataPanel = () => null
 
 const DataCard = ({ label, value, unit, color }) => (
   <div className="data-card" style={{

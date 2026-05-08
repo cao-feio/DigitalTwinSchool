@@ -211,11 +211,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* 状态指示器 */}
-        <div style={{ display: 'flex', gap: '14px' }}>
-          <StatusBadge label="CIMRTS" status="online" />
-          <StatusBadge label="PipeSer" status="online" />
-        </div>
+
       </div>
     </header>
   )
