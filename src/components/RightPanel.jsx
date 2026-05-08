@@ -1171,46 +1171,6 @@ const PipePropertyPanel = () => {
     return icons[type] || '🔧'
   }
 
-  const renderSpecificProperties = () => {
-    const properties = []
-    
-    if (selectedPipe.pressure) {
-      properties.push({ label: '工作压力', value: selectedPipe.pressure })
-    }
-    if (selectedPipe.flowRate) {
-      properties.push({ label: '设计流量', value: selectedPipe.flowRate })
-    }
-    if (selectedPipe.slope) {
-      properties.push({ label: '管道坡度', value: selectedPipe.slope })
-    }
-    if (selectedPipe.voltage) {
-      properties.push({ label: '电压等级', value: selectedPipe.voltage })
-    }
-    if (selectedPipe.current) {
-      properties.push({ label: '额定电流', value: selectedPipe.current })
-    }
-    if (selectedPipe.cableCount) {
-      properties.push({ label: '电缆数量', value: `${selectedPipe.cableCount} 根` })
-    }
-    if (selectedPipe.fiberType) {
-      properties.push({ label: '光纤类型', value: selectedPipe.fiberType })
-    }
-    if (selectedPipe.coreCount) {
-      properties.push({ label: '光纤芯数', value: `${selectedPipe.coreCount} 芯` })
-    }
-    if (selectedPipe.bandwidth) {
-      properties.push({ label: '带宽容量', value: selectedPipe.bandwidth })
-    }
-    if (selectedPipe.tempSupply) {
-      properties.push({ label: '供水温度', value: selectedPipe.tempSupply })
-    }
-    if (selectedPipe.tempReturn) {
-      properties.push({ label: '回水温度', value: selectedPipe.tempReturn })
-    }
-    
-    return properties
-  }
-
   const pipeLength = selectedPipe.length || calculatePipeLength(selectedPipe.path)
 
   return (
@@ -1272,82 +1232,8 @@ const PipePropertyPanel = () => {
               {pipeLength.toFixed(2)} 米
             </div>
           </div>
-          <div>
-            <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>安装日期</label>
-            <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600' }}>
-              {selectedPipe.installDate}
-            </div>
-          </div>
-          <div>
-            <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>节点数量</label>
-            <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600' }}>
-              {selectedPipe.path ? selectedPipe.path.length : 0} 个
-            </div>
-          </div>
         </div>
       </div>
-
-      {renderSpecificProperties().length > 0 && (
-        <div style={{
-          background: 'rgba(40, 55, 75, 0.6)',
-          borderRadius: '6px',
-          padding: '12px',
-          border: '1px solid rgba(100, 150, 200, 0.15)'
-        }}>
-          <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
-            技术参数
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            {renderSpecificProperties().map((prop, i) => (
-              <div key={i}>
-                <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-                  {prop.label}
-                </label>
-                <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600' }}>
-                  {prop.value}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {selectedPipe.manholes && selectedPipe.manholes.length > 0 && (
-        <div style={{
-          background: 'rgba(40, 55, 75, 0.6)',
-          borderRadius: '6px',
-          padding: '12px',
-          border: '1px solid rgba(100, 150, 200, 0.15)'
-        }}>
-          <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
-            附属设施 ({selectedPipe.manholes.length})
-          </div>
-          <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
-            {selectedPipe.manholes.map((manhole, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '8px',
-                background: 'rgba(24, 144, 255, 0.05)',
-                borderRadius: '4px',
-                marginBottom: '6px',
-                border: '1px solid rgba(100, 150, 200, 0.1)'
-              }}>
-                <div style={{ color: '#1890ff', fontSize: '12px', fontWeight: '600' }}>
-                  {manhole.name}
-                </div>
-                <div style={{ color: '#a0b8cc', fontSize: '11px' }}>
-                  {manhole.type === 'regular' && '普通检查井'}
-                  {manhole.type === 'valve' && '阀门井'}
-                  {manhole.type === 'tee' && '三通井'}
-                  {manhole.type === 'cross' && '四通井'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </Space>
   )
 }
