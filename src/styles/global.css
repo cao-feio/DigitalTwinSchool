@@ -15,12 +15,17 @@ body,
   color: #fff;
 }
 
-/* 增强型深科技感背景 */
+/* 超强科技感背景 - 数字孪生主题 */
 .tech-bg {
-  background: linear-gradient(135deg, #010a1f 0%, #01153c 40%, #000c2a 100%);
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 40% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, #010a1f 0%, #01153c 35%, #000c2a 70%, #010a1f 100%);
   position: relative;
 }
 
+/* 数字孪生主题粒子背景 */
 .tech-bg::before {
   content: '';
   position: absolute;
@@ -30,21 +35,21 @@ body,
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(circle at 15% 20%, rgba(0, 212, 255, 0.12) 0%, transparent 30%),
-    radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 25%),
-    radial-gradient(circle at 40% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 30%),
-    radial-gradient(circle at 75% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 25%);
-  animation: bg-pulse 8s ease-in-out infinite;
+    radial-gradient(circle at 15% 25%, rgba(0, 212, 255, 0.18) 0%, transparent 35%),
+    radial-gradient(circle at 85% 35%, rgba(6, 182, 212, 0.12) 0%, transparent 30%),
+    radial-gradient(circle at 40% 75%, rgba(139, 92, 246, 0.14) 0%, transparent 35%),
+    radial-gradient(circle at 75% 85%, rgba(16, 185, 129, 0.1) 0%, transparent 28%);
+  animation: bg-pulse 10s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
 
 @keyframes bg-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.05); }
 }
 
-/* 动态网格线背景 */
+/* 动态网格线背景 - 数字孪生风格 */
 .grid-pattern {
   position: absolute;
   top: 0;
@@ -52,80 +57,91 @@ body,
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px, 50px 50px, 200px 200px, 200px 200px;
   pointer-events: none;
   z-index: 0;
-  animation: grid-move 20s linear infinite;
+  animation: grid-move 30s linear infinite;
 }
 
 @keyframes grid-move {
-  0% { background-position: 0 0; }
-  100% { background-position: 60px 60px; }
+  0% { background-position: 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 50px 50px, 50px 50px, 200px 200px, 200px 200px; }
 }
 
-/* 增强科技感面板 */
+/* 数字孪生科技感面板 */
 .tech-panel {
-  background: linear-gradient(145deg, rgba(1, 25, 58, 0.92) 0%, rgba(1, 18, 45, 0.88) 100%);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: 
+    linear-gradient(145deg, rgba(1, 35, 70, 0.95) 0%, rgba(1, 22, 55, 0.92) 50%, rgba(1, 18, 45, 0.88) 100%);
+  border: 2px solid rgba(0, 212, 255, 0.4);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.36),
-    0 0 60px rgba(0, 212, 255, 0.15),
-    inset 0 0 80px rgba(0, 212, 255, 0.08);
-  backdrop-filter: blur(20px);
+    0 10px 50px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(0, 212, 255, 0.2),
+    inset 0 0 100px rgba(0, 212, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(30px);
   position: relative;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.tech-panel:hover {
-  box-shadow: 
-    0 12px 48px rgba(0, 0, 0, 0.45),
-    0 0 80px rgba(0, 212, 255, 0.25),
-    inset 0 0 100px rgba(0, 212, 255, 0.12);
-  transform: translateY(-2px);
-}
-
-/* 面板四角装饰 */
 .tech-panel::before,
 .tech-panel::after {
   content: '';
   position: absolute;
-  width: 20px;
-  height: 20px;
-  border-color: #00d4ff;
-  border-style: solid;
-  transition: all 0.3s ease;
+  width: 100px;
+  height: 100px;
+  border: 3px solid transparent;
+  transition: all 0.4s ease;
 }
 
 .tech-panel::before {
-  top: -1px;
-  left: -1px;
-  border-width: 3px 0 0 3px;
+  top: -3px;
+  left: -3px;
+  border-top-color: #00d4ff;
+  border-left-color: #00d4ff;
 }
 
 .tech-panel::after {
-  bottom: -1px;
-  right: -1px;
-  border-width: 0 3px 3px 0;
+  bottom: -3px;
+  right: -3px;
+  border-bottom-color: #00d4ff;
+  border-right-color: #00d4ff;
+}
+
+.tech-panel:hover {
+  box-shadow: 
+    0 15px 70px rgba(0, 0, 0, 0.6),
+    0 0 120px rgba(0, 212, 255, 0.35),
+    inset 0 0 120px rgba(0, 212, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-5px) scale(1.01);
+  border-color: rgba(0, 212, 255, 0.7);
 }
 
 .tech-panel:hover::before,
 .tech-panel:hover::after {
+  width: 120px;
+  height: 120px;
   border-color: #60a5fa;
-  box-shadow: 
-    0 0 15px rgba(0, 212, 255, 0.4);
+  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.6));
 }
 
-/* 增强发光文字标题 */
+/* 数字孪生发光文字 */
 .tech-title {
-  background: linear-gradient(90deg, #00d4ff, #38bdf8, #60a5fa, #8b5cf6, #00d4ff);
-  background-size: 300% auto;
+  background: linear-gradient(135deg, #00d4ff 0%, #38bdf8 25%, #60a5fa 50%, #8b5cf6 75%, #00d4ff 100%);
+  background-size: 400% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-flow 4s linear infinite;
-  text-shadow: 0 0 40px rgba(0, 212, 255, 0.5), 0 0 80px rgba(96, 165, 250, 0.3);
+  animation: gradient-flow 5s ease-in-out infinite;
+  text-shadow: 
+    0 0 40px rgba(0, 212, 255, 0.6), 
+    0 0 80px rgba(96, 165, 250, 0.4),
+    0 0 120px rgba(139, 92, 246, 0.2);
+  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
 }
 
 @keyframes gradient-flow {
@@ -134,14 +150,16 @@ body,
   100% { background-position: 200% center; }
 }
 
-/* 增强按钮样式 */
+/* 数字孪生科技按钮 */
 .tech-btn {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.18) 0%, rgba(96, 165, 250, 0.08) 100%);
-  border: 1px solid rgba(0, 212, 255, 0.45);
+  background: 
+    linear-gradient(135deg, rgba(0, 212, 255, 0.25) 0%, rgba(96, 165, 250, 0.15) 50%, rgba(139, 92, 246, 0.12) 100%);
+  border: 2px solid rgba(0, 212, 255, 0.6);
   color: #00d4ff;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
 }
 
 .tech-btn::before {
@@ -151,163 +169,351 @@ body,
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-  transition: left 0.5s ease;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.7s ease;
+}
+
+.tech-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .tech-btn:hover::before {
   left: 100%;
 }
 
+.tech-btn:hover::after {
+  opacity: 1;
+}
+
 .tech-btn:hover {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.35) 0%, rgba(96, 165, 250, 0.2) 100%);
+  background: 
+    linear-gradient(135deg, rgba(0, 212, 255, 0.45) 0%, rgba(96, 165, 250, 0.3) 50%, rgba(139, 92, 246, 0.2) 100%);
   border-color: #00d4ff;
-  box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
-  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 0 50px rgba(0, 212, 255, 0.6),
+    0 0 100px rgba(96, 165, 250, 0.3),
+    inset 0 0 30px rgba(0, 212, 255, 0.2);
+  transform: translateY(-4px) scale(1.03);
+  color: #fff;
 }
 
 .tech-btn:active {
-  transform: translateY(-1px) scale(0.98);
+  transform: translateY(-1px) scale(0.99);
 }
 
 .tech-btn.active {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.55) 0%, rgba(6, 182, 212, 0.3) 100%);
+  background: 
+    linear-gradient(135deg, rgba(0, 212, 255, 0.65) 0%, rgba(6, 182, 212, 0.45) 100%);
   border-color: #00d4ff;
-  box-shadow: 0 0 50px rgba(0, 212, 255, 0.6);
+  box-shadow: 
+    0 0 70px rgba(0, 212, 255, 0.8),
+    0 0 140px rgba(96, 165, 250, 0.4),
+    inset 0 0 40px rgba(0, 212, 255, 0.3);
 }
 
-/* 美化滚动条 */
+/* 科技感滚动条 */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(1, 18, 45, 0.8);
-  border-radius: 3px;
+  background: rgba(1, 18, 45, 0.9);
+  border-radius: 4px;
+  box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.1);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00d4ff, #60a5fa);
-  border-radius: 3px;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  background: linear-gradient(180deg, #00d4ff, #60a5fa, #8b5cf6);
+  border-radius: 4px;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #38bdf8, #8b5cf6);
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+  background: linear-gradient(180deg, #38bdf8, #8b5cf6, #a78bfa);
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.9);
 }
 
-/* 增强脉冲动画 */
+/* 数字孪生脉冲动画 */
 .pulse-animation {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
   0%, 100% { 
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
     transform: scale(1);
   }
   50% { 
-    box-shadow: 0 0 30px rgba(0, 212, 255, 0.8), 0 0 60px rgba(96, 165, 250, 0.4);
-    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.9), 0 0 80px rgba(96, 165, 250, 0.5);
+    transform: scale(1.1);
   }
 }
 
 /* 顶部标题栏装饰 */
 .header-border {
-  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), rgba(96, 165, 250, 0.35), rgba(139, 92, 246, 0.3), rgba(0, 212, 255, 0.5), transparent);
-  height: 3px;
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(0, 212, 255, 0.3) 15%,
+    rgba(0, 212, 255, 0.7) 30%,
+    rgba(96, 165, 250, 0.5) 50%,
+    rgba(139, 92, 246, 0.4) 70%,
+    rgba(0, 212, 255, 0.7) 85%,
+    transparent
+  );
+  height: 4px;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+  animation: header-glow 3s ease-in-out infinite;
 }
 
-/* 增强数据面板 */
+@keyframes header-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* 数字孪生数据卡片 */
 .data-card {
-  background: linear-gradient(135deg, rgba(1, 30, 68, 0.92) 0%, rgba(1, 21, 60, 0.88) 100%);
-  border: 1px solid rgba(0, 212, 255, 0.35);
+  background: 
+    linear-gradient(135deg, rgba(1, 35, 70, 0.95) 0%, rgba(1, 25, 58, 0.9) 100%);
+  border: 2px solid rgba(0, 212, 255, 0.4);
   position: relative;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(15px);
+  transition: all 0.4s ease;
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+}
+
+.data-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+  animation: scan-line 3s linear infinite;
+}
+
+@keyframes scan-line {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .data-card:hover {
   border-color: #00d4ff;
-  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-  transform: translateY(-3px);
+  box-shadow: 
+    0 0 40px rgba(0, 212, 255, 0.4),
+    inset 0 0 30px rgba(0, 212, 255, 0.15);
+  transform: translateY(-5px);
 }
 
-.data-card::before,
 .data-card::after {
   content: '';
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border: 2px solid #00d4ff;
-  transition: all 0.3s ease;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #00d4ff, #60a5fa, #8b5cf6, #00d4ff);
+  border-radius: inherit;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.4s ease;
+  filter: blur(10px);
 }
 
-.data-card::before {
-  top: -1px;
-  left: -1px;
-  border-right: 0;
-  border-bottom: 0;
-}
-
-.data-card::after {
-  bottom: -1px;
-  right: -1px;
-  border-left: 0;
-  border-top: 0;
-}
-
-.data-card:hover::before,
 .data-card:hover::after {
-  border-color: #60a5fa;
-  width: 14px;
-  height: 14px;
+  opacity: 0.3;
 }
 
-/* 数据数字样式增强 */
+/* 数据数字样式 - 数字孪生风格 */
 .data-value {
-  background: linear-gradient(135deg, #00d4ff, #60a5fa, #8b5cf6);
-  background-size: 200% auto;
+  background: linear-gradient(135deg, #00d4ff, #60a5fa, #8b5cf6, #00d4ff);
+  background-size: 300% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 30px rgba(0, 212, 255, 0.45);
-  animation: data-glow 2s ease-in-out infinite;
+  text-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+  animation: data-glow 2.5s ease-in-out infinite, gradient-flow 4s linear infinite;
 }
 
 @keyframes data-glow {
   0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.3); }
+  50% { filter: brightness(1.4); }
 }
 
-/* 粒子装饰元素 */
+/* 粒子装饰元素 - 数字孪生主题 */
 .particle {
   position: absolute;
-  width: 4px;
-  height: 4px;
-  background: radial-gradient(circle, #00d4ff, transparent);
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #00d4ff, #60a5fa, transparent);
   border-radius: 50%;
   pointer-events: none;
-  animation: float-up 10s linear infinite;
+  animation: float-up 12s linear infinite;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
 }
 
 @keyframes float-up {
-  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+  0% { 
+    transform: translateY(100vh) rotate(0deg); 
+    opacity: 0;
+  }
+  10% { 
+    opacity: 1;
+  }
+  90% { 
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(-100vh) rotate(1080deg); 
+    opacity: 0;
+  }
 }
 
-/* 输入框聚焦效果 */
+/* 输入框聚焦效果 - 数字孪生风格 */
 input:focus, textarea:focus, select:focus {
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4) !important;
+  box-shadow: 
+    0 0 30px rgba(0, 212, 255, 0.6) !important;
   border-color: #00d4ff !important;
   outline: none !important;
 }
 
 /* 平滑过渡 */
 * {
-  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 数字扫描线效果 */
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.8), transparent);
+  animation: scan 4s linear infinite;
+  pointer-events: none;
+  z-index: 100;
+}
+
+@keyframes scan {
+  0% { top: 0; opacity: 1; }
+  100% { top: 100%; opacity: 0.3; }
+}
+
+/* HUD风格装饰 */
+.hud-corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(0, 212, 255, 0.6);
+  pointer-events: none;
+}
+
+.hud-corner-tl {
+  top: 10px;
+  left: 10px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.hud-corner-tr {
+  top: 10px;
+  right: 10px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.hud-corner-bl {
+  bottom: 10px;
+  left: 10px;
+  border-right: none;
+  border-top: none;
+}
+
+.hud-corner-br {
+  bottom: 10px;
+  right: 10px;
+  border-left: none;
+  border-top: none;
+}
+
+/* 数字全息效果 */
+.hologram-effect {
+  position: relative;
+}
+
+.hologram-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(transparent 50%, rgba(0, 212, 255, 0.03) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: hologram-scan 0.5s linear infinite;
+  z-index: 10;
+}
+
+@keyframes hologram-scan {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 4px; }
+}
+
+/* 数字孪生Logo旋转效果 */
+.logo-spin {
+  animation: logo-glow 3s ease-in-out infinite;
+}
+
+@keyframes logo-glow {
+  0%, 100% { 
+    filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.6));
+  }
+  50% { 
+    filter: drop-shadow(0 0 40px rgba(0, 212, 255, 0.9)) drop-shadow(0 0 60px rgba(96, 165, 250, 0.5));
+  }
+}
+
+/* 建筑数据流动效果 */
+.data-flow {
+  position: relative;
+  overflow: hidden;
+}
+
+.data-flow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+  animation: data-flow 3s linear infinite;
+}
+
+@keyframes data-flow {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* 数字孪生主题配色变量 */
+:root {
+  --tech-primary: #00d4ff;
+  --tech-secondary: #60a5fa;
+  --tech-accent: #8b5cf6;
+  --tech-success: #10b981;
+  --tech-warning: #f59e0b;
+  --tech-danger: #ef4444;
+  --tech-dark: #010a1f;
+  --tech-darker: #000c2a;
 }
