@@ -10,6 +10,125 @@ import Measurements from './Measurements'
 import ModelLibrary from './ModelLibrary'
 import * as THREE from 'three'
 
+const isWebGLSupported = () => {
+  try {
+    const canvas = document.createElement('canvas')
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+    )
+  } catch (e) {
+    return false
+  }
+}
+
+const StaticFallbackBackground = () => (
+  <div style={{
+    width: '100%',
+    height: '100%',
+    background: `
+      radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.12) 0%, transparent 35%),
+      linear-gradient(135deg, #010a1f 0%, #01153c 50%, #000c2a 100%)
+    `,
+    position: 'relative',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#e2e8f0'
+  }}>
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundImage: `
+        linear-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.08) 1px, transparent 1px)
+      `,
+      backgroundSize: '30px 30px',
+      animation: 'gridMove 20s linear infinite'
+    }} />
+    <div style={{
+      position: 'absolute',
+      top: '10%',
+      left: '10%',
+      width: '400px',
+      height: '400px',
+      background: 'radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%)',
+      borderRadius: '50%',
+      animation: 'pulse-glow 8s ease-in-out infinite'
+    }} />
+    <div style={{
+      position: 'absolute',
+      bottom: '15%',
+      right: '15%',
+      width: '300px',
+      height: '300px',
+      background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+      borderRadius: '50%',
+      animation: 'pulse-glow 10s ease-in-out infinite 2s'
+    }} />
+    <div style={{ textAlign: 'center', zIndex: 10, padding: '40px' }}>
+      <div style={{ fontSize: '64px', marginBottom: '20px' }}>🏫</div>
+      <h1 style={{
+        fontSize: '28px',
+        color: '#00d4ff',
+        marginBottom: '16px',
+        textShadow: '0 0 10px rgba(0, 212, 255, 0.5)'
+      }}>
+        数字孪生校园平台
+      </h1>
+      <p style={{
+        fontSize: '14px',
+        color: '#94a3b8',
+        maxWidth: '400px',
+        lineHeight: '1.8'
+      }}>
+        WebGL 渲染环境不可用
+        <br />
+        但您可以继续使用其他功能
+      </p>
+    </div>
+    <style>{`
+      @keyframes gridMove {
+        0% { background-position: 0 0; }
+        100% { background-position: 30px 30px; }
+      }
+      @keyframes pulse-glow {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.1); }
+      }
+    `}</style>
+  </div>
+)
+
+class SceneErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error) {
+    console.error('3D 场景错误:', error)
+    return { hasError: true }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Scene3D 错误详情:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || <StaticFallbackBackground />
+    }
+    return this.props.children
+  }
+}
+
 const CameraController = () => {
   const { selectedModel, transformMode, cameraTarget } = useStore()
   const { camera } = useThree()
@@ -20,7 +139,6 @@ const CameraController = () => {
   const lastSelectedModelId = useRef(null)
   const lastCameraTarget = useRef(null)
 
-  // 处理模型选择定位
   useEffect(() => {
     if (selectedModel && selectedModel.position && selectedModel.id !== lastSelectedModelId.current) {
       lastSelectedModelId.current = selectedModel.id
@@ -31,7 +149,6 @@ const CameraController = () => {
     }
   }, [selectedModel?.id])
 
-  // 处理相机目标定位（标注定位）
   useEffect(() => {
     if (cameraTarget && cameraTarget !== lastCameraTarget.current) {
       lastCameraTarget.current = cameraTarget
@@ -85,7 +202,6 @@ const CameraController = () => {
 }
 
 const Clouds = () => {
-  // 使用 useMemo 预生成云朵配置，避免每次渲染都重新随机
   const cloudData = React.useMemo(() => {
     return [...Array(10)].map((_, i) => ({
       position: [
@@ -474,7 +590,6 @@ const AnnotationPositionPreview = () => {
 
   return (
     <group position={tempAnnotationPosition}>
-      {/* 位置指示器 */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.5 * size, 0.8 * size, 32]} />
         <meshBasicMaterial 
@@ -485,13 +600,11 @@ const AnnotationPositionPreview = () => {
         />
       </mesh>
       
-      {/* 垂直线 */}
       <mesh position={[0, -tempAnnotationPosition[1] / 2, 0]}>
         <cylinderGeometry args={[0.03 * size, 0.03 * size, tempAnnotationPosition[1], 8]} />
         <meshBasicMaterial color="#00d4ff" transparent opacity={0.5} />
       </mesh>
       
-      {/* 预览几何体 */}
       <mesh>
         <boxGeometry args={[1.2 * size, 1.2 * size, 1.2 * size]} />
         <meshStandardMaterial 
@@ -503,7 +616,6 @@ const AnnotationPositionPreview = () => {
         />
       </mesh>
       
-      {/* 预览文字 */}
       <Text
         position={[0, 2.5 * size, 0]}
         color="#00d4ff"
@@ -600,81 +712,64 @@ const SunlightAnalysis = () => {
   )
 }
 
-const Scene3D = () => {
+const Scene3DContent = () => {
   const { layers, analysisMode, hasSelectedPipe, setSelectedPipe, setHasSelectedPipe, selectedPipe } = useStore()
 
   const handleSceneClick = (e) => {
     // 暂时禁用点击空白处取消管线选中的功能，避免误触发
-    // 点击空白处或非管线对象时，取消管线选中
-    // 但注意：我们需要防止干扰其他交互
-    // const clickedOnObject = e.object && e.object.parent;
-    // const isPipeObject = clickedOnObject && (
-    //   e.object.parent?.name?.includes('pipe') || 
-    //   e.object.name?.includes('pipe') ||
-    //   // 检查是否是管线相关的几何体
-    //   e.object.geometry?.type === 'CylinderGeometry' ||
-    //   e.object.geometry?.type === 'SphereGeometry'
-    // );
-    // 
-    // if (!isPipeObject && hasSelectedPipe) {
-    //   console.log('点击空白处，取消管线选中');
-    //   setSelectedPipe(null);
-    //   setHasSelectedPipe(false);
-    // }
   }
 
   return (
-    <div style={{ width: '100%', height: '100%' }} id="canvas-container">
-      <Canvas
-        shadows
-        camera={{ 
-          position: [70, 50, 70], 
-          fov: 50,
-          near: 0.1,
-          far: 2000
-        }}
-        gl={{ 
-          antialias: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.2,
-          shadowMapType: THREE.PCFSoftShadowMap,
-          logarithmicDepthBuffer: true
-        }}
-        onClick={handleSceneClick}
+    <Canvas
+      shadows
+      camera={{ 
+        position: [70, 50, 70], 
+        fov: 50,
+        near: 0.1,
+        far: 2000
+      }}
+      gl={{ 
+        antialias: true,
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.2,
+        shadowMapType: THREE.PCFSoftShadowMap,
+        logarithmicDepthBuffer: true
+      }}
+      onClick={handleSceneClick}
+    >
+      <Sky sunPosition={[100, 100, 80]} turbidity={0.3} rayleigh={0.5} mieCoefficient={0.007} />
+      
+      <ambientLight intensity={1.5} color="#e0f0ff" />
+      
+      <directionalLight
+        position={[100, 100, 80]}
+        intensity={2.5}
+        color="#fffef0"
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0001}
       >
-        <Sky sunPosition={[100, 100, 80]} turbidity={0.3} rayleigh={0.5} mieCoefficient={0.007} />
-        
-        <ambientLight intensity={1.5} color="#e0f0ff" />
-        
-        <directionalLight
-          position={[100, 100, 80]}
-          intensity={2.5}
-          color="#fffef0"
-          castShadow
-          shadow-mapSize={[2048, 2048]}
-          shadow-bias={-0.0001}
-        >
-          <orthographicCamera attach="shadow-camera" args={[-200, 200, 200, -200, 0.1, 1000]} />
-        </directionalLight>
-        
-        <hemisphereLight intensity={1.0} groundColor="#3a5a3a" skyColor="#87ceeb" />
+        <orthographicCamera attach="shadow-camera" args={[-200, 200, 200, -200, 0.1, 1000]} />
+      </directionalLight>
+      
+      <hemisphereLight intensity={1.0} groundColor="#3a5a3a" skyColor="#87ceeb" />
 
-        <Sun />
-        <Clouds />
-        
-        <Grid
-          args={[400, 400]}
-          cellSize={20}
-          cellThickness={0.4}
-          cellColor="rgba(59, 130, 246, 0.1)"
-          sectionSize={100}
-          sectionThickness={0.6}
-          sectionColor="rgba(59, 130, 246, 0.2)"
-          fadeDistance={400}
-          fadeStrength={0}
-        />
+      <Sun />
+      <Clouds />
+      
+      <Grid
+        args={[400, 400]}
+        cellSize={20}
+        cellThickness={0.4}
+        cellColor="rgba(59, 130, 246, 0.1)"
+        sectionSize={100}
+        sectionThickness={0.6}
+        sectionColor="rgba(59, 130, 246, 0.2)"
+        fadeDistance={400}
+        fadeStrength={0}
+      />
 
-        <Suspense fallback={null}>
+      <Suspense fallback={null}>
         {layers.terrain && <Terrain isFaded={hasSelectedPipe} />}
         {layers.buildings && <Buildings isFaded={hasSelectedPipe} />}
         {layers.buildings && <UserBuildings isFaded={hasSelectedPipe} />}
@@ -690,9 +785,30 @@ const Scene3D = () => {
         {analysisMode === 'viewshed' && <ViewShedAnalysis />}
         {analysisMode === 'sunlight' && <SunlightAnalysis />}
       </Suspense>
-        
-        <CameraController />
-      </Canvas>
+      
+      <CameraController />
+    </Canvas>
+  )
+}
+
+const Scene3D = () => {
+  const [webglSupported, setWebglSupported] = useState(true)
+
+  useEffect(() => {
+    setWebglSupported(isWebGLSupported())
+  }, [])
+
+  if (!webglSupported) {
+    return <StaticFallbackBackground />
+  }
+
+  return (
+    <div style={{ width: '100%', height: '100%' }} id="canvas-container">
+      <SceneErrorBoundary fallback={<StaticFallbackBackground />}>
+        <Suspense fallback={<StaticFallbackBackground />}>
+          <Scene3DContent />
+        </Suspense>
+      </SceneErrorBoundary>
     </div>
   )
 }
