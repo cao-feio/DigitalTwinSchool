@@ -793,19 +793,50 @@ const Scene3DContent = () => {
 
 const Scene3D = () => {
   const [webglSupported, setWebglSupported] = useState(true)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setWebglSupported(isWebGLSupported())
+    // 默认假设WebGL是支持的，先尝试渲染3D场景
+    const supported = isWebGLSupported()
+    console.log('WebGL支持检测:', supported)
+    setWebglSupported(true) // 强制开启，让我们先尝试渲染
+    setLoading(false)
   }, [])
 
-  if (!webglSupported) {
-    return <StaticFallbackBackground />
+  if (loading) {
+    return (
+      <div style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #010a1f 0%, #01153c 50%, #000c2a 100%)',
+        color: '#00d4ff',
+        fontSize: '20px'
+      }}>
+        正在加载3D场景...
+      </div>
+    )
   }
 
   return (
     <div style={{ width: '100%', height: '100%' }} id="canvas-container">
       <SceneErrorBoundary fallback={<StaticFallbackBackground />}>
-        <Suspense fallback={<StaticFallbackBackground />}>
+        <Suspense fallback={
+          <div style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #010a1f 0%, #01153c 50%, #000c2a 100%)',
+            color: '#00d4ff',
+            fontSize: '20px'
+          }}>
+            正在加载3D资源...
+          </div>
+        }>
           <Scene3DContent />
         </Suspense>
       </SceneErrorBoundary>
