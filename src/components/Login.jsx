@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Form, Input, Button, Card, message } from 'antd'
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons'
-import LoginScene3D from './LoginScene3D'
 
 const Login = ({ onLogin }) => {
   const [loading, setLoading] = useState(false)
@@ -49,10 +48,25 @@ const Login = ({ onLogin }) => {
       justifyContent: 'center',
       position: 'relative',
       overflow: 'hidden',
-      background: 'transparent'
+      background: 'linear-gradient(135deg, #010a1f 0%, #01153c 50%, #000c2a 100%)'
     }}>
-      <LoginScene3D />
+      {/* 装饰性网格背景 */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: `
+          linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '60px 60px',
+        animation: 'gridMove 20s linear infinite',
+        zIndex: 1
+      }} />
       
+      {/* 装饰光晕 */}
       <div style={{
         position: 'absolute',
         top: '5%',
@@ -89,6 +103,18 @@ const Login = ({ onLogin }) => {
         pointerEvents: 'none',
         zIndex: 2
       }} />
+      
+      {/* 添加关键帧动画样式 */}
+      <style>{`
+        @keyframes gridMove {
+          0% { background-position: 0 0; }
+          100% { background-position: 60px 60px; }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+      `}</style>
 
       <Card className="tech-panel" style={{
         width: '520px',
