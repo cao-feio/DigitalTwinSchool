@@ -853,8 +853,474 @@ const ModelingPanel = () => {
   )
 }
 
+const PipeListItem = ({ pipe, isSelected, isVisible, onSelect, onToggleVisibility, onLocate }) => {
+  const getPipeTypeIcon = (type) => {
+    const icons = {
+      water: '💧',
+      drain: '🚰',
+      power: '⚡',
+      gas: '🔥',
+      heat: '🌡️',
+      communication: '📡'
+    }
+    return icons[type] || '🔧'
+  }
+
+  const getPipeTypeName = (type) => {
+    const names = {
+      water: '给水管道',
+      drain: '排水管道',
+      power: '电力管线',
+      gas: '燃气管线',
+      heat: '热力管线',
+      communication: '通信管线'
+    }
+    return names[type] || '管线'
+  }
+
+  return (
+    <div
+      style={{
+        padding: '10px 12px',
+        marginBottom: '8px',
+        background: isSelected ? 
+          'rgba(24, 144, 255, 0.2)' : 
+          'rgba(40, 55, 75, 0.6)',
+        border: `1px solid ${isSelected ? '#1890ff' : 'rgba(100, 150, 200, 0.15)'}`,
+        borderRadius: '6px',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease'
+      }}
+      onClick={() => onSelect(pipe)}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = isSelected ? 
+          'rgba(24, 144, 255, 0.25)' : 
+          'rgba(24, 144, 255, 0.1)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = isSelected ? 
+          'rgba(24, 144, 255, 0.2)' : 
+          'rgba(40, 55, 75, 0.6)'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+          <span style={{ fontSize: '22px' }}>
+            {getPipeTypeIcon(pipe.pipeType)}
+          </span>
+          <div style={{ flex: 1 }}>
+            <div style={{
+              fontSize: '13px',
+              fontWeight: '600',
+              color: isSelected ? '#1890ff' : '#e6f2ff',
+              marginBottom: '2px'
+            }}>
+              {pipe.name}
+            </div>
+            <div style={{ fontSize: '11px', color: '#a0b8cc' }}>
+              {getPipeTypeName(pipe.pipeType)} | {pipe.diameterMm}mm
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <button
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '4px',
+              border: 'none',
+              background: 'rgba(24, 144, 255, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onClick={(e) => {
+              e.stopPropagation()
+              onLocate(pipe)
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(24, 144, 255, 0.25)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(24, 144, 255, 0.15)'
+            }}
+          >
+            <Locate size={14} color="#1890ff" />
+          </button>
+          <button
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '4px',
+              border: 'none',
+              background: isVisible ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggleVisibility(pipe.id)
+            }}
+          >
+            {isVisible ? 
+              <Eye size={14} color="#22c55e" /> : 
+              <EyeOff size={14} color="#ef4444" />
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PipeListPanel = () => {
+  const { selectedPipe, setSelectedPipe, modelVisibility, toggleModelVisibility } = useStore()
+  const [openGroups, setOpenGroups] = React.useState({
+    water: true,
+    drain: true,
+    power: true,
+    gas: true,
+    heat: true,
+    communication: true
+  })
+
+  const handleLocate = (pipe) => {
+    setSelectedPipe(pipe)
+  }
+
+  const toggleGroup = (groupType) => {
+    setOpenGroups(prev => ({
+      ...prev,
+      [groupType]: !prev[groupType]
+    }))
+  }
+
+  const groupPipesByType = () => {
+    const groups = {}
+    defaultPipeData.forEach(pipe => {
+      if (!groups[pipe.pipeType]) {
+        groups[pipe.pipeType] = []
+      }
+      groups[pipe.pipeType].push(pipe)
+    })
+    return groups
+  }
+
+  const pipeGroups = groupPipesByType()
+
+  const getPipeTypeLabel = (type) => {
+    const labels = {
+      water: '给水管网',
+      drain: '排水管网',
+      power: '电力管网',
+      gas: '燃气管网',
+      heat: '热力管网',
+      communication: '通信管网'
+    }
+    return labels[type] || type
+  }
+
+  const getPipeTypeIcon = (type) => {
+    const icons = {
+      water: '💧',
+      drain: '🚰',
+      power: '⚡',
+      gas: '🔥',
+      heat: '🌡️',
+      communication: '📡'
+    }
+    return icons[type] || '🔧'
+  }
+
+  return (
+    <>
+      <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}>
+        {Object.keys(pipeGroups).map(type => (
+          <div key={type} style={{ marginBottom: '12px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 12px',
+                background: 'rgba(100, 150, 200, 0.1)',
+                borderRadius: '6px',
+                border: '1px solid rgba(100, 150, 200, 0.2)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                marginBottom: '6px'
+              }}
+              onClick={() => toggleGroup(type)}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>{getPipeTypeIcon(type)}</span>
+                <span style={{ color: '#e6f2ff', fontWeight: '600', fontSize: '13px' }}>
+                  {getPipeTypeLabel(type)}
+                </span>
+                <span style={{ 
+                  color: '#1890ff', 
+                  fontSize: '11px', 
+                  fontWeight: '600',
+                  background: 'rgba(24, 144, 255, 0.15)',
+                  padding: '2px 6px',
+                  borderRadius: '8px'
+                }}>
+                  {pipeGroups[type].length}
+                </span>
+              </div>
+              <span style={{ color: '#1890ff' }}>
+                {openGroups[type] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </span>
+            </div>
+            
+            {openGroups[type] && (
+              <div style={{ paddingLeft: '8px' }}>
+                {pipeGroups[type].map((pipe) => (
+                  <PipeListItem
+                    key={pipe.id}
+                    pipe={pipe}
+                    isSelected={selectedPipe?.id === pipe.id}
+                    isVisible={modelVisibility[pipe.id] !== false}
+                    onSelect={setSelectedPipe}
+                    onToggleVisibility={toggleModelVisibility}
+                    onLocate={handleLocate}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
+  )
+}
+
+const PipePropertyPanel = () => {
+  const { selectedPipe, setSelectedPipe } = useStore()
+
+  if (!selectedPipe) {
+    return (
+      <div style={{
+        textAlign: 'center',
+        padding: '30px 20px',
+        color: '#a0b8cc'
+      }}>
+        <div style={{ fontSize: '40px', marginBottom: '10px' }}>🔧</div>
+        <p style={{ fontSize: '13px' }}>点击场景中的管线查看详细信息</p>
+      </div>
+    )
+  }
+
+  const getPipeTypeName = (type) => {
+    const names = {
+      water: '给水管道',
+      drain: '排水管道',
+      power: '电力管线',
+      gas: '燃气管线',
+      heat: '热力管线',
+      communication: '通信管线'
+    }
+    return names[type] || '管线'
+  }
+
+  const getPipeTypeIcon = (type) => {
+    const icons = {
+      water: '💧',
+      drain: '🚰',
+      power: '⚡',
+      gas: '🔥',
+      heat: '🌡️',
+      communication: '📡'
+    }
+    return icons[type] || '🔧'
+  }
+
+  const renderSpecificProperties = () => {
+    const properties = []
+    
+    if (selectedPipe.pressure) {
+      properties.push({ label: '工作压力', value: selectedPipe.pressure })
+    }
+    if (selectedPipe.flowRate) {
+      properties.push({ label: '设计流量', value: selectedPipe.flowRate })
+    }
+    if (selectedPipe.slope) {
+      properties.push({ label: '管道坡度', value: selectedPipe.slope })
+    }
+    if (selectedPipe.voltage) {
+      properties.push({ label: '电压等级', value: selectedPipe.voltage })
+    }
+    if (selectedPipe.current) {
+      properties.push({ label: '额定电流', value: selectedPipe.current })
+    }
+    if (selectedPipe.cableCount) {
+      properties.push({ label: '电缆数量', value: `${selectedPipe.cableCount} 根` })
+    }
+    if (selectedPipe.fiberType) {
+      properties.push({ label: '光纤类型', value: selectedPipe.fiberType })
+    }
+    if (selectedPipe.coreCount) {
+      properties.push({ label: '光纤芯数', value: `${selectedPipe.coreCount} 芯` })
+    }
+    if (selectedPipe.bandwidth) {
+      properties.push({ label: '带宽容量', value: selectedPipe.bandwidth })
+    }
+    if (selectedPipe.tempSupply) {
+      properties.push({ label: '供水温度', value: selectedPipe.tempSupply })
+    }
+    if (selectedPipe.tempReturn) {
+      properties.push({ label: '回水温度', value: selectedPipe.tempReturn })
+    }
+    
+    return properties
+  }
+
+  return (
+    <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <div style={{
+        background: 'rgba(40, 55, 75, 0.6)',
+        borderRadius: '6px',
+        padding: '12px',
+        border: '1px solid rgba(100, 150, 200, 0.15)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+          <span style={{ fontSize: '32px' }}>{getPipeTypeIcon(selectedPipe.pipeType)}</span>
+          <div>
+            <div style={{ color: '#e6f2ff', fontSize: '14px', fontWeight: '600' }}>
+              {selectedPipe.name}
+            </div>
+            <div style={{ color: '#a0b8cc', fontSize: '11px' }}>
+              {getPipeTypeName(selectedPipe.pipeType)}
+            </div>
+          </div>
+        </div>
+        
+        <div style={{ fontSize: '12px', color: '#a0b8cc', lineHeight: '1.6' }}>
+          {selectedPipe.description}
+        </div>
+      </div>
+
+      <div style={{
+        background: 'rgba(40, 55, 75, 0.6)',
+        borderRadius: '6px',
+        padding: '12px',
+        border: '1px solid rgba(100, 150, 200, 0.15)'
+      }}>
+        <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+          基本参数
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div>
+            <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>管道材质</label>
+            <div style={{ color: '#1890ff', fontSize: '13px', fontWeight: '600' }}>
+              {selectedPipe.material}
+            </div>
+          </div>
+          <div>
+            <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>管道直径</label>
+            <div style={{ color: '#52c41a', fontSize: '13px', fontWeight: '600' }}>
+              {selectedPipe.diameterMm} mm
+            </div>
+          </div>
+          <div>
+            <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>埋设深度</label>
+            <div style={{ color: '#faad14', fontSize: '13px', fontWeight: '600' }}>
+              {selectedPipe.depth} m
+            </div>
+          </div>
+          <div>
+            <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>管道长度</label>
+            <div style={{ color: '#a855f7', fontSize: '13px', fontWeight: '600' }}>
+              {selectedPipe.length}
+            </div>
+          </div>
+          <div>
+            <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>安装日期</label>
+            <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600' }}>
+              {selectedPipe.installDate}
+            </div>
+          </div>
+          <div>
+            <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>节点数量</label>
+            <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600' }}>
+              {selectedPipe.path ? selectedPipe.path.length : 0} 个
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {renderSpecificProperties().length > 0 && (
+        <div style={{
+          background: 'rgba(40, 55, 75, 0.6)',
+          borderRadius: '6px',
+          padding: '12px',
+          border: '1px solid rgba(100, 150, 200, 0.15)'
+        }}>
+          <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+            技术参数
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            {renderSpecificProperties().map((prop, i) => (
+              <div key={i}>
+                <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                  {prop.label}
+                </label>
+                <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600' }}>
+                  {prop.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {selectedPipe.manholes && selectedPipe.manholes.length > 0 && (
+        <div style={{
+          background: 'rgba(40, 55, 75, 0.6)',
+          borderRadius: '6px',
+          padding: '12px',
+          border: '1px solid rgba(100, 150, 200, 0.15)'
+        }}>
+          <div style={{ color: '#e6f2ff', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+            附属设施 ({selectedPipe.manholes.length})
+          </div>
+          <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
+            {selectedPipe.manholes.map((manhole, i) => (
+              <div key={i} style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '8px',
+                background: 'rgba(24, 144, 255, 0.05)',
+                borderRadius: '4px',
+                marginBottom: '6px',
+                border: '1px solid rgba(100, 150, 200, 0.1)'
+              }}>
+                <div style={{ color: '#1890ff', fontSize: '12px', fontWeight: '600' }}>
+                  {manhole.name}
+                </div>
+                <div style={{ color: '#a0b8cc', fontSize: '11px' }}>
+                  {manhole.type === 'regular' && '普通检查井'}
+                  {manhole.type === 'valve' && '阀门井'}
+                  {manhole.type === 'tee' && '三通井'}
+                  {manhole.type === 'cross' && '四通井'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Space>
+  )
+}
+
 const RightPanel = () => {
-  const { currentTool, selectedModel } = useStore()
+  const { currentTool, selectedModel, selectedPipe } = useStore()
 
   const renderPanel = () => {
     switch (currentTool) {
@@ -889,6 +1355,19 @@ const RightPanel = () => {
           <CollapsiblePanel title="模型列表" icon={Layers} defaultOpen={true}>
             <ModelListPanel />
           </CollapsiblePanel>
+        )
+      case 'pipes':
+        return (
+          <>
+            <CollapsiblePanel title="管网系统" icon={Layers} defaultOpen={true}>
+              <PipeListPanel />
+            </CollapsiblePanel>
+            {selectedPipe && (
+              <CollapsiblePanel title="管线详情" icon={Edit3} defaultOpen={true}>
+                <PipePropertyPanel />
+              </CollapsiblePanel>
+            )}
+          </>
         )
       default:
         return (

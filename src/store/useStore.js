@@ -56,6 +56,14 @@ export const useStore = create((set, get) => ({
   // 选中的模型
   selectedModel: null,
   setSelectedModel: (model) => set({ selectedModel: model }),
+
+  // 选中的管线
+  selectedPipe: null,
+  setSelectedPipe: (pipe) => set({ selectedPipe: pipe }),
+
+  // 是否有选中的管线
+  hasSelectedPipe: false,
+  setHasSelectedPipe: (value) => set({ hasSelectedPipe: value }),
   
   // 选中的标注
   selectedAnnotationId: null,
