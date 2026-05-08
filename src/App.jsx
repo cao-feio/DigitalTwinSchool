@@ -39,11 +39,10 @@ const configProviderProps = {
 }
 
 function App() {
-  // 明确选择需要响应的状态
-  const isLoggedIn = useStore(state => state.isLoggedIn)
-  const login = useStore(state => state.login)
-  const initializeAuth = useStore(state => state.initializeAuth)
-  
+  // 使用 Zustand 选择器来获取特定状态，确保精确的重新渲染
+  const isLoggedIn = useStore((state) => state.isLoggedIn)
+  const login = useStore((state) => state.login)
+  const initializeAuth = useStore((state) => state.initializeAuth)
   const [authInitialized, setAuthInitialized] = useState(false)
 
   useEffect(() => {
@@ -53,7 +52,7 @@ function App() {
   }, [initializeAuth])
 
   useEffect(() => {
-    console.log('登录状态已更新:', isLoggedIn)
+    console.log('登录状态已变更:', isLoggedIn ? '已登录' : '未登录')
   }, [isLoggedIn])
 
   if (!authInitialized) {
