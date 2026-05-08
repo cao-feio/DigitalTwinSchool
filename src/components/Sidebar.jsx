@@ -67,22 +67,24 @@ const Sidebar = () => {
 
   return (
     <div className="tech-panel" style={{
-      width: '80px',
-      padding: '12px 10px',
-      borderRadius: '4px',
+      width: '88px',
+      padding: '14px 12px',
+      borderRadius: '10px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '10px'
+      gap: '12px',
+      backdropFilter: 'blur(20px)'
     }}>
       <div style={{
         fontSize: '14px',
         color: '#00d4ff',
         textAlign: 'center',
-        paddingBottom: '10px',
-        borderBottom: '1px solid rgba(0, 212, 255, 0.3)',
-        letterSpacing: '2px',
-        marginBottom: '6px',
-        fontWeight: '600'
+        paddingBottom: '12px',
+        borderBottom: '2px solid rgba(0, 212, 255, 0.35)',
+        letterSpacing: '3px',
+        marginBottom: '8px',
+        fontWeight: '700',
+        textShadow: '0 0 15px rgba(0, 212, 255, 0.5)'
       }}>
         工具箱
       </div>
@@ -93,32 +95,36 @@ const Sidebar = () => {
           onClick={() => handleToolClick(id)}
           title={label}
           style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '4px',
+            width: '64px',
+            height: '68px',
+            borderRadius: '8px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '6px',
-            border: currentTool === id ? '1px solid #00d4ff' : '1px solid transparent',
+            gap: '8px',
+            border: currentTool === id ? '2px solid #00d4ff' : '1px solid transparent',
             background: currentTool === id 
-              ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.25) 0%, rgba(0, 212, 255, 0.15) 100%)'
-              : 'rgba(1, 30, 68, 0.4)',
+              ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(96, 165, 250, 0.18) 50%, rgba(139, 92, 246, 0.12) 100%)'
+              : 'rgba(1, 30, 68, 0.5)',
             cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            boxShadow: currentTool === id ? '0 0 25px rgba(0, 212, 255, 0.4)' : 'none'
+            transition: 'all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            boxShadow: currentTool === id 
+              ? '0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 212, 255, 0.25)' 
+              : '0 2px 10px rgba(0, 0, 0, 0.3)'
           }}
         >
           <Icon 
-            size={26} 
+            size={28} 
             color={currentTool === id ? '#00d4ff' : '#94a3b8'} 
+            strokeWidth={currentTool === id ? 2.2 : 1.8}
           />
           <span style={{
             fontSize: '12px',
             color: currentTool === id ? '#00d4ff' : '#94a3b8',
-            letterSpacing: '1px',
-            fontWeight: '500'
+            letterSpacing: '1.5px',
+            fontWeight: currentTool === id ? '700' : '500',
+            textShadow: currentTool === id ? '0 0 10px rgba(0, 212, 255, 0.6)' : 'none'
           }}>
             {label}
           </span>

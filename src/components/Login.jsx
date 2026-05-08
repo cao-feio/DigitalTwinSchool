@@ -8,20 +8,17 @@ const Login = ({ onLogin }) => {
   const [form] = Form.useForm()
 
   useEffect(() => {
-    // 临时修改body和root的背景
     const originalBodyBg = document.body.style.background
     const originalRootBg = document.getElementById('root').style.background
     document.body.style.background = 'transparent'
     document.getElementById('root').style.background = 'transparent'
 
     return () => {
-      // 组件卸载时恢复
       document.body.style.background = originalBodyBg
       document.getElementById('root').style.background = originalRootBg
     }
   }, [])
 
-  // 硬编码的账号密码
   const VALID_USERNAME = 'admin'
   const VALID_PASSWORD = '123456'
 
@@ -30,7 +27,6 @@ const Login = ({ onLogin }) => {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // 验证账号密码
       if (values.username === VALID_USERNAME && values.password === VALID_PASSWORD) {
         onLogin(values.username)
         message.success('登录成功')
@@ -55,90 +51,111 @@ const Login = ({ onLogin }) => {
       overflow: 'hidden',
       background: 'transparent'
     }}>
-      {/* 3D 校园场景背景 */}
       <LoginScene3D />
       
-      {/* 装饰光晕 */}
       <div style={{
         position: 'absolute',
-        top: '10%',
-        left: '5%',
-        width: '300px',
-        height: '300px',
-        background: 'radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%)',
+        top: '5%',
+        left: '3%',
+        width: '400px',
+        height: '400px',
+        background: 'radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%)',
         borderRadius: '50%',
         pointerEvents: 'none',
-        zIndex: 2
+        zIndex: 2,
+        animation: 'pulse-glow 6s ease-in-out infinite'
       }} />
       <div style={{
         position: 'absolute',
-        bottom: '10%',
-        right: '5%',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+        bottom: '5%',
+        right: '3%',
+        width: '500px',
+        height: '500px',
+        background: 'radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, rgba(59, 130, 246, 0.12) 40%, transparent 70%)',
+        borderRadius: '50%',
+        pointerEvents: 'none',
+        zIndex: 2,
+        animation: 'pulse-glow 8s ease-in-out infinite'
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '40%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '600px',
+        height: '600px',
+        background: 'radial-gradient(circle, rgba(96, 165, 250, 0.08) 0%, transparent 70%)',
         borderRadius: '50%',
         pointerEvents: 'none',
         zIndex: 2
       }} />
 
       <Card className="tech-panel" style={{
-        width: '480px',
-        padding: '20px 50px 50px',
-        borderRadius: '8px',
+        width: '520px',
+        padding: '25px 60px 60px',
+        borderRadius: '16px',
         zIndex: 10,
-        backdropFilter: 'blur(20px)',
-        background: 'linear-gradient(135deg, rgba(1, 30, 68, 0.85) 0%, rgba(1, 21, 60, 0.75) 100%)'
+        backdropFilter: 'blur(25px)',
+        background: 'linear-gradient(145deg, rgba(1, 35, 70, 0.92) 0%, rgba(1, 22, 55, 0.88) 50%, rgba(1, 18, 45, 0.85) 100%)',
+        border: '2px solid rgba(0, 212, 255, 0.35)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.6), 0 0 80px rgba(0, 212, 255, 0.2)'
       }}>
-        {/* Logo区域 */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '45px' }}>
           <div style={{
-            width: '80px',
-            height: '80px',
-            margin: '0 auto 20px',
-            background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%)',
-            borderRadius: '12px',
+            width: '96px',
+            height: '96px',
+            margin: '0 auto 24px',
+            background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.25) 0%, rgba(96, 165, 250, 0.18) 50%, rgba(139, 92, 246, 0.12) 100%)',
+            borderRadius: '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '2px solid rgba(0, 212, 255, 0.4)',
-            boxShadow: '0 0 40px rgba(0, 212, 255, 0.25)'
+            border: '3px solid rgba(0, 212, 255, 0.5)',
+            boxShadow: '0 0 60px rgba(0, 212, 255, 0.35), inset 0 0 30px rgba(0, 212, 255, 0.15)'
           }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="1.5">
-              <rect x="3" y="11" width="7" height="10" rx="1" />
-              <rect x="14" y="7" width="7" height="14" rx="1" />
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="1.7">
+              <rect x="3" y="11" width="7" height="10" rx="1.2" />
+              <rect x="14" y="7" width="7" height="14" rx="1.2" />
               <path d="M10 12h3" />
               <path d="M12 7v5" />
             </svg>
           </div>
           
           <h1 className="tech-title" style={{
-            fontSize: '28px',
+            fontSize: '32px',
             fontWeight: 'bold',
-            letterSpacing: '6px',
-            marginBottom: '8px'
+            letterSpacing: '8px',
+            marginBottom: '10px'
           }}>
             数字孪生校园平台
           </h1>
           
           <div style={{
-            color: 'rgba(148, 163, 184, 0.8)',
-            fontSize: '14px',
-            letterSpacing: '2px'
+            color: 'rgba(226, 232, 240, 0.9)',
+            fontSize: '15px',
+            letterSpacing: '3px',
+            fontWeight: 500
           }}>
             Digital Twin Campus Platform
           </div>
           
-          {/* 装饰线 */}
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            gap: '10px',
-            marginTop: '20px'
+            alignItems: 'center',
+            gap: '14px',
+            marginTop: '24px'
           }}>
-            <div style={{ width: '100px', height: '2px', background: 'linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.6), transparent)' }} />
-            <div style={{ width: '6px', height: '6px', background: '#00d4ff', borderRadius: '50%', boxShadow: '0 0 10px rgba(0, 212, 255, 0.8)' }} />
-            <div style={{ width: '100px', height: '2px', background: 'linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.6), transparent)' }} />
+            <div style={{ width: '120px', height: '3px', background: 'linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.7), rgba(96, 165, 250, 0.5), transparent)', borderRadius: '2px' }} />
+            <div style={{ 
+              width: '10px', 
+              height: '10px', 
+              background: '#00d4ff', 
+              borderRadius: '50%', 
+              boxShadow: '0 0 20px rgba(0, 212, 255, 0.9), 0 0 40px rgba(0, 212, 255, 0.4)',
+              animation: 'pulse-glow 2s ease-in-out infinite'
+            }} />
+            <div style={{ width: '120px', height: '3px', background: 'linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.5), rgba(0, 212, 255, 0.7), transparent)', borderRadius: '2px' }} />
           </div>
         </div>
 
@@ -153,13 +170,16 @@ const Login = ({ onLogin }) => {
             rules={[{ required: true, message: '请输入用户名' }]}
           >
             <Input
-              prefix={<UserOutlined style={{ color: 'rgba(0, 212, 255, 0.6)' }} />}
+              prefix={<UserOutlined style={{ color: 'rgba(0, 212, 255, 0.8)', fontSize: '18px' }} />}
               placeholder="请输入用户名"
               style={{
-                background: 'rgba(1, 21, 60, 0.6)',
-                border: '1px solid rgba(0, 212, 255, 0.3)',
+                background: 'rgba(1, 21, 60, 0.75)',
+                border: '2px solid rgba(0, 212, 255, 0.35)',
                 color: '#e2e8f0',
-                borderRadius: '6px'
+                borderRadius: '10px',
+                height: '52px',
+                fontSize: '15px',
+                letterSpacing: '0.5px'
               }}
             />
           </Form.Item>
@@ -169,21 +189,24 @@ const Login = ({ onLogin }) => {
             rules={[{ required: true, message: '请输入密码' }]}
           >
             <Input.Password
-              prefix={<LockOutlined style={{ color: 'rgba(0, 212, 255, 0.6)' }} />}
+              prefix={<LockOutlined style={{ color: 'rgba(0, 212, 255, 0.8)', fontSize: '18px' }} />}
               placeholder="请输入密码"
               iconRender={(visible) => (
-                visible ? <EyeTwoTone twoToneColor="#00d4ff" /> : <EyeInvisibleOutlined style={{ color: 'rgba(0, 212, 255, 0.6)' }} />
+                visible ? <EyeTwoTone twoToneColor="#00d4ff" style={{ fontSize: '18px' }} /> : <EyeInvisibleOutlined style={{ color: 'rgba(0, 212, 255, 0.7)', fontSize: '18px' }} />
               )}
               style={{
-                background: 'rgba(1, 21, 60, 0.6)',
-                border: '1px solid rgba(0, 212, 255, 0.3)',
+                background: 'rgba(1, 21, 60, 0.75)',
+                border: '2px solid rgba(0, 212, 255, 0.35)',
                 color: '#e2e8f0',
-                borderRadius: '6px'
+                borderRadius: '10px',
+                height: '52px',
+                fontSize: '15px',
+                letterSpacing: '0.5px'
               }}
             />
           </Form.Item>
 
-          <Form.Item style={{ marginTop: '30px' }}>
+          <Form.Item style={{ marginTop: '40px' }}>
             <Button
               type="primary"
               htmlType="submit"
@@ -191,11 +214,14 @@ const Login = ({ onLogin }) => {
               block
               className="tech-btn"
               style={{
-                height: '50px',
-                fontSize: '16px',
-                fontWeight: '500',
-                letterSpacing: '4px',
-                borderRadius: '6px'
+                height: '56px',
+                fontSize: '17px',
+                fontWeight: '600',
+                letterSpacing: '5px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(96, 165, 250, 0.2) 50%, rgba(139, 92, 246, 0.15) 100%)',
+                border: '2px solid rgba(0, 212, 255, 0.5)',
+                boxShadow: '0 0 40px rgba(0, 212, 255, 0.3)'
               }}
             >
               登 录
@@ -203,15 +229,15 @@ const Login = ({ onLogin }) => {
           </Form.Item>
         </Form>
 
-        {/* 底部提示 */}
-      <div style={{
-        textAlign: 'center',
-        marginTop: '20px',
-        color: 'rgba(148, 163, 184, 0.6)',
-        fontSize: '12px'
-      }}>
-        <p>提示：用户名 admin / 密码 123456</p>
-      </div>
+        <div style={{
+          textAlign: 'center',
+          marginTop: '25px',
+          color: 'rgba(148, 163, 184, 0.75)',
+          fontSize: '13px',
+          letterSpacing: '1px'
+        }}>
+          <p>提示：用户名 <span style={{ color: '#00d4ff', fontWeight: 600 }}>admin</span> / 密码 <span style={{ color: '#00d4ff', fontWeight: 600 }}>123456</span></p>
+        </div>
       </Card>
     </div>
   )

@@ -5,10 +5,10 @@ export const CornerDecoration = () => (
     {/* 左上角装饰 */}
     <div style={{
       position: 'absolute',
-      top: '85px',
-      left: '100px',
-      width: '120px',
-      height: '120px',
+      top: '90px',
+      left: '120px',
+      width: '140px',
+      height: '140px',
       pointerEvents: 'none',
       zIndex: '5'
     }}>
@@ -16,36 +16,49 @@ export const CornerDecoration = () => (
         position: 'absolute',
         top: '0',
         left: '0',
-        width: '70px',
-        height: '2px',
-        background: 'linear-gradient(90deg, #00d4ff, transparent)'
+        width: '85px',
+        height: '3px',
+        background: 'linear-gradient(90deg, #00d4ff, rgba(0, 212, 255, 0.3), transparent)',
+        boxShadow: '0 0 10px rgba(0, 212, 255, 0.4)'
       }} />
       <div style={{
         position: 'absolute',
         top: '0',
         left: '0',
-        width: '2px',
-        height: '70px',
-        background: 'linear-gradient(180deg, #00d4ff, transparent)'
+        width: '3px',
+        height: '85px',
+        background: 'linear-gradient(180deg, #00d4ff, rgba(0, 212, 255, 0.3), transparent)',
+        boxShadow: '0 0 10px rgba(0, 212, 255, 0.4)'
       }} />
       <div style={{
         position: 'absolute',
-        top: '10px',
-        left: '10px',
-        width: '35px',
-        height: '35px',
-        borderTop: '1px solid rgba(0, 212, 255, 0.45)',
-        borderLeft: '1px solid rgba(0, 212, 255, 0.45)'
+        top: '15px',
+        left: '15px',
+        width: '45px',
+        height: '45px',
+        borderTop: '2px solid rgba(0, 212, 255, 0.6)',
+        borderLeft: '2px solid rgba(0, 212, 255, 0.6)',
+        boxShadow: 'inset 10px 10px 20px rgba(0, 212, 255, 0.08)'
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '5px',
+        left: '5px',
+        width: '8px',
+        height: '8px',
+        background: '#00d4ff',
+        borderRadius: '50%',
+        boxShadow: '0 0 15px rgba(0, 212, 255, 0.8)'
       }} />
     </div>
 
     {/* 右上角装饰 */}
     <div style={{
       position: 'absolute',
-      top: '85px',
-      right: '370px',
-      width: '120px',
-      height: '120px',
+      top: '90px',
+      right: '400px',
+      width: '140px',
+      height: '140px',
       pointerEvents: 'none',
       zIndex: '5'
     }}>
@@ -53,26 +66,39 @@ export const CornerDecoration = () => (
         position: 'absolute',
         top: '0',
         right: '0',
-        width: '70px',
-        height: '2px',
-        background: 'linear-gradient(270deg, #00d4ff, transparent)'
+        width: '85px',
+        height: '3px',
+        background: 'linear-gradient(270deg, #00d4ff, rgba(0, 212, 255, 0.3), transparent)',
+        boxShadow: '0 0 10px rgba(0, 212, 255, 0.4)'
       }} />
       <div style={{
         position: 'absolute',
         top: '0',
         right: '0',
-        width: '2px',
-        height: '70px',
-        background: 'linear-gradient(180deg, #00d4ff, transparent)'
+        width: '3px',
+        height: '85px',
+        background: 'linear-gradient(180deg, #00d4ff, rgba(0, 212, 255, 0.3), transparent)',
+        boxShadow: '0 0 10px rgba(0, 212, 255, 0.4)'
       }} />
       <div style={{
         position: 'absolute',
-        top: '10px',
-        right: '10px',
-        width: '35px',
-        height: '35px',
-        borderTop: '1px solid rgba(0, 212, 255, 0.45)',
-        borderRight: '1px solid rgba(0, 212, 255, 0.45)'
+        top: '15px',
+        right: '15px',
+        width: '45px',
+        height: '45px',
+        borderTop: '2px solid rgba(0, 212, 255, 0.6)',
+        borderRight: '2px solid rgba(0, 212, 255, 0.6)',
+        boxShadow: 'inset -10px 10px 20px rgba(0, 212, 255, 0.08)'
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '5px',
+        right: '5px',
+        width: '8px',
+        height: '8px',
+        background: '#00d4ff',
+        borderRadius: '50%',
+        boxShadow: '0 0 15px rgba(0, 212, 255, 0.8)'
       }} />
     </div>
   </>
@@ -81,7 +107,7 @@ export const CornerDecoration = () => (
 export const DataPanel = () => (
   <div style={{
     display: 'flex',
-    gap: '30px',
+    gap: '35px',
     zIndex: '5',
     pointerEvents: 'none'
   }}>
@@ -94,24 +120,51 @@ export const DataPanel = () => (
 
 const DataCard = ({ label, value, unit, color }) => (
   <div className="data-card" style={{
-    padding: '12px 25px',
-    borderRadius: '4px',
+    padding: '16px 32px',
+    borderRadius: '8px',
     textAlign: 'center',
-    minWidth: '120px'
+    minWidth: '150px',
+    background: `linear-gradient(135deg, rgba(1, 30, 68, 0.95) 0%, rgba(1, 21, 60, 0.90) 100%)`,
+    border: `1px solid ${color}40`,
+    boxShadow: `0 0 25px ${color}15, inset 0 0 30px ${color}10`
   }}>
+    <div style={{
+      position: 'absolute',
+      top: '-1px',
+      left: '20px',
+      width: '40px',
+      height: '2px',
+      background: `linear-gradient(90deg, transparent, ${color}, transparent)`
+    }} />
+    <div style={{
+      position: 'absolute',
+      bottom: '-1px',
+      right: '20px',
+      width: '40px',
+      height: '2px',
+      background: `linear-gradient(90deg, transparent, ${color}, transparent)`
+    }} />
     <div className="data-value" style={{
-      fontSize: '30px',
+      fontSize: '36px',
       fontWeight: 'bold',
-      marginBottom: '6px',
-      letterSpacing: '1px'
+      marginBottom: '8px',
+      letterSpacing: '1.5px',
+      background: `linear-gradient(135deg, ${color}, ${color}dd, ${color}aa)`,
+      backgroundSize: '200% auto',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+      textShadow: `0 0 30px ${color}50`
     }}>
       {value}
-      <span style={{ fontSize: '16px', marginLeft: '4px' }}>{unit}</span>
+      <span style={{ fontSize: '18px', marginLeft: '6px', fontWeight: 500 }}>{unit}</span>
     </div>
     <div style={{
-      fontSize: '12px',
+      fontSize: '13px',
       color: '#94a3b8',
-      letterSpacing: '3px'
+      letterSpacing: '3.5px',
+      fontWeight: 500,
+      textTransform: 'uppercase'
     }}>
       {label}
     </div>
