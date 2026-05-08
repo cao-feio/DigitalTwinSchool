@@ -130,7 +130,7 @@ class SceneErrorBoundary extends React.Component {
 }
 
 const CameraController = () => {
-  const { selectedModel, transformMode, cameraTarget } = useStore()
+  const { selectedModel, transformMode, cameraTarget, selectedPipe } = useStore()
   const { camera } = useThree()
   const controls = useRef()
   const [isMoving, setIsMoving] = useState(false)
@@ -138,6 +138,7 @@ const CameraController = () => {
   const targetLookAt = useRef(null)
   const lastSelectedModelId = useRef(null)
   const lastCameraTarget = useRef(null)
+  const lastSelectedPipeId = useRef(null)
 
   useEffect(() => {
     if (selectedModel && selectedModel.position && selectedModel.id !== lastSelectedModelId.current) {
@@ -148,6 +149,20 @@ const CameraController = () => {
       setIsMoving(true)
     }
   }, [selectedModel?.id])
+
+  useEffect(() => {
+    if (selectedPipe && selectedPipe.id !== lastSelectedPipeId.current && selectedPipe.path) {
+      lastSelectedPipeId.current = selectedPipe.id
+      // 计算管线中点位置
+      const path = selectedPipe.path
+      const midIndex = Math.floor(path.length / 2)
+      const midPoint = path[midIndex]
+      const [x, y, z] = midPoint
+      targetPosition.current = new THREE.Vector3(x, Math.abs(y) + 40, z + 50)
+      targetLookAt.current = new THREE.Vector3(x, Math.abs(y) + 10, z)
+      setIsMoving(true)
+    }
+  }, [selectedPipe?.id])
 
   useEffect(() => {
     if (cameraTarget && cameraTarget !== lastCameraTarget.current) {

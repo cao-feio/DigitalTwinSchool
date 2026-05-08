@@ -979,7 +979,7 @@ const PipeListItem = ({ pipe, isSelected, isVisible, onSelect, onToggleVisibilit
 }
 
 const PipeListPanel = () => {
-  const { selectedPipe, setSelectedPipe, modelVisibility, toggleModelVisibility } = useStore()
+  const { selectedPipe, setSelectedPipe, modelVisibility, toggleModelVisibility, setHasSelectedPipe, setCurrentTool, layers, toggleLayer } = useStore()
   const [openGroups, setOpenGroups] = React.useState({
     water: true,
     drain: true,
@@ -989,8 +989,24 @@ const PipeListPanel = () => {
     communication: true
   })
 
+  const handleSelectPipe = (pipe) => {
+    // 确保管线图层开启
+    if (!layers.pipes) {
+      toggleLayer('pipes')
+    }
+    setCurrentTool('pipes')
+    setHasSelectedPipe(true)
+    
+    if (selectedPipe?.id === pipe.id) {
+      setSelectedPipe(null)
+      setHasSelectedPipe(false)
+    } else {
+      setSelectedPipe(pipe)
+    }
+  }
+
   const handleLocate = (pipe) => {
-    setSelectedPipe(pipe)
+    handleSelectPipe(pipe)
   }
 
   const toggleGroup = (groupType) => {
@@ -1080,17 +1096,17 @@ const PipeListPanel = () => {
             
             {openGroups[type] && (
               <div style={{ paddingLeft: '8px' }}>
-                {pipeGroups[type].map((pipe) => (
-                  <PipeListItem
-                    key={pipe.id}
-                    pipe={pipe}
-                    isSelected={selectedPipe?.id === pipe.id}
-                    isVisible={modelVisibility[pipe.id] !== false}
-                    onSelect={setSelectedPipe}
-                    onToggleVisibility={toggleModelVisibility}
-                    onLocate={handleLocate}
-                  />
-                ))}
+          {pipeGroups[type].map((pipe) => (
+            <PipeListItem
+              key={pipe.id}
+              pipe={pipe}
+              isSelected={selectedPipe?.id === pipe.id}
+              isVisible={modelVisibility[pipe.id] !== false}
+              onSelect={handleSelectPipe}
+              onToggleVisibility={toggleModelVisibility}
+              onLocate={handleLocate}
+            />
+          ))}
               </div>
             )}
           </div>
@@ -1103,6 +1119,21 @@ const PipeListPanel = () => {
 const PipePropertyPanel = () => {
   const { selectedPipe, setSelectedPipe } = useStore()
 
+  // 计算管线长度
+  const calculatePipeLength = (path) => {
+    if (!path || path.length < 2) return 0
+    let totalLength = 0
+    for (let i = 1; i < path.length; i++) {
+      const [x1, y1, z1] = path[i - 1]
+      const [x2, y2, z2] = path[i]
+      const dx = x2 - x1
+      const dy = y2 - y1
+      const dz = z2 - z1
+      totalLength += Math.sqrt(dx * dx + dy * dy + dz * dz)
+    }
+    return totalLength
+  }
+
   if (!selectedPipe) {
     return (
       <div style={{
@@ -1111,7 +1142,7 @@ const PipePropertyPanel = () => {
         color: '#a0b8cc'
       }}>
         <div style={{ fontSize: '40px', marginBottom: '10px' }}>🔧</div>
-        <p style={{ fontSize: '13px' }}>点击场景中的管线查看详细信息</p>
+        <p style={{ fontSize: '13px' }}>点击场景中的管线或列表查看详细信息</p>
       </div>
     )
   }
@@ -1180,6 +1211,8 @@ const PipePropertyPanel = () => {
     return properties
   }
 
+  const pipeLength = selectedPipe.length || calculatePipeLength(selectedPipe.path)
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <div style={{
@@ -1236,7 +1269,7 @@ const PipePropertyPanel = () => {
           <div>
             <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>管道长度</label>
             <div style={{ color: '#a855f7', fontSize: '13px', fontWeight: '600' }}>
-              {selectedPipe.length}
+              {pipeLength.toFixed(2)} 米
             </div>
           </div>
           <div>
