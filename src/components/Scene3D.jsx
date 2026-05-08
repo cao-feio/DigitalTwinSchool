@@ -130,7 +130,7 @@ class SceneErrorBoundary extends React.Component {
 }
 
 const CameraController = () => {
-  const { selectedModel, transformMode, cameraTarget, selectedPipe } = useStore()
+  const { selectedModel, transformMode, cameraTarget, selectedPipe, selectedAnnotationId, annotations } = useStore()
   const { camera } = useThree()
   const controls = useRef()
   const [isMoving, setIsMoving] = useState(false)
@@ -139,6 +139,7 @@ const CameraController = () => {
   const lastSelectedModelId = useRef(null)
   const lastCameraTarget = useRef(null)
   const lastSelectedPipeId = useRef(null)
+  const lastSelectedAnnotationId = useRef(null)
 
   useEffect(() => {
     if (selectedModel && selectedModel.position && selectedModel.id !== lastSelectedModelId.current) {
@@ -163,6 +164,19 @@ const CameraController = () => {
       setIsMoving(true)
     }
   }, [selectedPipe?.id])
+
+  useEffect(() => {
+    if (selectedAnnotationId && selectedAnnotationId !== lastSelectedAnnotationId.current) {
+      const annotation = annotations.find(a => a.id === selectedAnnotationId)
+      if (annotation && annotation.position) {
+        lastSelectedAnnotationId.current = selectedAnnotationId
+        const [x, y, z] = annotation.position
+        targetPosition.current = new THREE.Vector3(x, y + 20, z + 25)
+        targetLookAt.current = new THREE.Vector3(x, y + 5, z)
+        setIsMoving(true)
+      }
+    }
+  }, [selectedAnnotationId, annotations])
 
   useEffect(() => {
     if (cameraTarget && cameraTarget !== lastCameraTarget.current) {

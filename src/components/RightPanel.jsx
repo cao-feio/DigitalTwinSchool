@@ -1301,6 +1301,7 @@ const AnnotationPanel = () => {
       }
       addAnnotation(annotation)
       cancelSelectingAnnotationPosition()
+      setSelectedAnnotationId(annotation.id)
       updateNewAnnotation({ text: '', position: [0, 5, 0], style: 'box', color: '#00d4ff', size: 1 })
     }
   }
@@ -1412,21 +1413,6 @@ const AnnotationPanel = () => {
                   </div>
                 </div>
                 
-                <div>
-                  <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-                    大小: {newAnnotation.size.toFixed(1)}
-                  </label>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="3"
-                    step="0.1"
-                    value={newAnnotation.size}
-                    onChange={(e) => updateNewAnnotation({ size: parseFloat(e.target.value) })}
-                    style={{ width: '100%' }}
-                  />
-                </div>
-                
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     onClick={cancelSelectingAnnotationPosition}
@@ -1510,6 +1496,22 @@ const AnnotationPanel = () => {
               </div>
               
               <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedAnnotationId(annotation.id)
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#00d4ff',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}
+                >
+                  📍
+                </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
