@@ -1,11 +1,46 @@
 import { create } from 'zustand'
 
+// 从localStorage读取初始状态
+const getInitialAuthState = () => {
+  try {
+    const savedState = localStorage.getItem('digital-twin-auth')
+    if (savedState) {
+      const parsed = JSON.parse(savedState)
+      return {
+        isLoggedIn: parsed.isLoggedIn || false,
+        username: parsed.username || null
+      }
+    }
+  } catch (e) {
+    console.error('读取登录状态失败:', e)
+  }
+  return { isLoggedIn: false, username: null }
+}
+
+const initialAuthState = getInitialAuthState()
+
 export const useStore = create((set, get) => ({
   // 登录状态
-  isLoggedIn: false,
-  username: null,
-  login: (username) => set({ isLoggedIn: true, username }),
-  logout: () => set({ isLoggedIn: false, username: null }),
+  isLoggedIn: initialAuthState.isLoggedIn,
+  username: initialAuthState.username,
+  login: (username) => {
+    const newState = { isLoggedIn: true, username }
+    set(newState)
+    try {
+      localStorage.setItem('digital-twin-auth', JSON.stringify(newState))
+    } catch (e) {
+      console.error('保存登录状态失败:', e)
+    }
+  },
+  logout: () => {
+    const newState = { isLoggedIn: false, username: null }
+    set(newState)
+    try {
+      localStorage.removeItem('digital-twin-auth')
+    } catch (e) {
+      console.error('清除登录状态失败:', e)
+    }
+  },
 
   // 场景状态
   currentTool: null,
