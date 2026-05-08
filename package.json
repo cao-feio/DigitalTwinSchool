@@ -1,0 +1,29 @@
+{
+  "name": "digital-twin-school",
+  "version": "1.0.0",
+  "description": "数字孪生校园平台",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@react-three/fiber": "^8.15.16",
+    "@react-three/drei": "^9.99.5",
+    "three": "^0.162.0",
+    "zustand": "^4.5.2",
+    "antd": "^5.15.0",
+    "@ant-design/icons": "^5.3.1",
+    "lucide-react": "^0.344.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.1.0"
+  }
+}
