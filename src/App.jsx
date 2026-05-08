@@ -13,45 +13,35 @@ import './styles/global.css'
 
 const { Content } = Layout
 
+// 公共配置
+const configProviderProps = {
+  locale: zhCN,
+  theme: {
+    algorithm: theme.darkAlgorithm,
+    token: {
+      colorPrimary: '#00d4ff',
+      borderRadius: 4,
+      colorBgContainer: 'rgba(1, 21, 60, 0.95)',
+      colorBorder: 'rgba(0, 212, 255, 0.3)',
+      colorText: '#e2e8f0',
+      colorTextSecondary: '#94a3b8'
+    }
+  }
+}
+
 function App() {
   const { isLoggedIn, login } = useStore()
 
   if (!isLoggedIn) {
     return (
-      <ConfigProvider
-        locale={zhCN}
-        theme={{
-          algorithm: theme.darkAlgorithm,
-          token: {
-            colorPrimary: '#00d4ff',
-            borderRadius: 4,
-            colorBgContainer: 'rgba(1, 21, 60, 0.95)',
-            colorBorder: 'rgba(0, 212, 255, 0.3)',
-            colorText: '#e2e8f0',
-            colorTextSecondary: '#94a3b8'
-          }
-        }}
-      >
+      <ConfigProvider {...configProviderProps}>
         <Login onLogin={login} />
       </ConfigProvider>
     )
   }
 
   return (
-    <ConfigProvider
-      locale={zhCN}
-      theme={{
-        algorithm: theme.darkAlgorithm,
-        token: {
-          colorPrimary: '#00d4ff',
-          borderRadius: 4,
-          colorBgContainer: 'rgba(1, 21, 60, 0.95)',
-          colorBorder: 'rgba(0, 212, 255, 0.3)',
-          colorText: '#e2e8f0',
-          colorTextSecondary: '#94a3b8'
-        }
-      }}
-    >
+    <ConfigProvider {...configProviderProps}>
       <div className="tech-bg" style={{ width: '100%', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         <div className="grid-pattern" />
         

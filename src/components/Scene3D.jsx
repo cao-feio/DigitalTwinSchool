@@ -85,25 +85,37 @@ const CameraController = () => {
 }
 
 const Clouds = () => {
+  // 使用 useMemo 预生成云朵配置，避免每次渲染都重新随机
+  const cloudData = React.useMemo(() => {
+    return [...Array(10)].map((_, i) => ({
+      position: [
+        (Math.random() - 0.5) * 300,
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 300
+      ],
+      spheres: [...Array(6)].map(() => ({
+        position: [
+          (Math.random() - 0.5) * 30,
+          (Math.random() - 0.5) * 10,
+          (Math.random() - 0.5) * 20
+        ],
+        scale: 8 + Math.random() * 6,
+        opacity: 0.6 + Math.random() * 0.3
+      }))
+    }))
+  }, [])
+
   return (
     <group position={[0, 80, 0]}>
-      {[...Array(10)].map((_, i) => (
-        <group key={i} position={[
-          (Math.random() - 0.5) * 300,
-          (Math.random() - 0.5) * 20,
-          (Math.random() - 0.5) * 300
-        ]}>
-          {[...Array(6)].map((_, j) => (
-            <mesh key={j} position={[
-              (Math.random() - 0.5) * 30,
-              (Math.random() - 0.5) * 10,
-              (Math.random() - 0.5) * 20
-            ]}>
-              <sphereGeometry args={[8 + Math.random() * 6, 16, 12]} />
+      {cloudData.map((cloud, i) => (
+        <group key={i} position={cloud.position}>
+          {cloud.spheres.map((sphere, j) => (
+            <mesh key={j} position={sphere.position}>
+              <sphereGeometry args={[sphere.scale, 16, 12]} />
               <meshStandardMaterial 
                 color="#ffffff"
                 transparent
-                opacity={0.6 + Math.random() * 0.3}
+                opacity={sphere.opacity}
                 roughness={1}
               />
             </mesh>
@@ -336,7 +348,6 @@ const SingleUserBuilding = ({ building, isFaded: externalIsFaded }) => {
     hasSelectedPipe
   } = useStore();
   const isFaded = hasSelectedPipe || externalIsFaded
-  console.log('SingleUserBuilding - building:', building.name, 'isFaded:', isFaded)
 
   const meshRef = useRef(null);
   const offset = building.offset || [0, 0, 0];
@@ -591,8 +602,6 @@ const SunlightAnalysis = () => {
 
 const Scene3D = () => {
   const { layers, analysisMode, hasSelectedPipe, setSelectedPipe, setHasSelectedPipe, selectedPipe } = useStore()
-  // 调试信息
-  console.log('Scene3D - hasSelectedPipe:', hasSelectedPipe, 'selectedPipe:', selectedPipe, 'layers.pipes:', layers.pipes)
 
   const handleSceneClick = (e) => {
     // 暂时禁用点击空白处取消管线选中的功能，避免误触发

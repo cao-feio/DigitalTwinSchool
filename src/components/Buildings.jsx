@@ -841,7 +841,6 @@ const BuildingWithTransform = ({ building, isSelected, isFaded, onClick }) => {
 
 const Buildings = ({ isFaded: externalIsFaded }) => {
   const { selectedModel, setSelectedModel, modelVisibility, hasSelectedPipe } = useStore()
-  console.log('Buildings组件 - hasSelectedPipe:', hasSelectedPipe, 'externalIsFaded:', externalIsFaded)
 
   const buildingsData = defaultBuildingData
 
