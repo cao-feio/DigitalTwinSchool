@@ -690,7 +690,13 @@ const Pipes = () => {
     setCameraTarget, 
     setCurrentTool, 
     layers, 
-    toggleLayer 
+    toggleLayer,
+    customPipes,
+    pipeGenPoints,
+    pipeGenParams,
+    pipeGenMode,
+    addPipeGenPoint,
+    clearPipeGenPoints
   } = useStore()
 
   const handlePipeClick = (e, pipe) => {
@@ -720,7 +726,7 @@ const Pipes = () => {
 
   return (
     <group>
-      {defaultPipeData.map(pipe => {
+      {customPipes.map(pipe => {
         if (modelVisibility[pipe.id] === false) return null
         const isSelected = selectedPipe?.id === pipe.id
         

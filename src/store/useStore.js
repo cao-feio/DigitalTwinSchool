@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { defaultBuildingData } from '../components/Buildings'
+import { defaultPipeData } from '../components/Pipes'
 import * as THREE from 'three'
 
 export const useStore = create((set, get) => ({
@@ -44,7 +45,6 @@ export const useStore = create((set, get) => ({
     } catch (e) {
       console.error('清除登录状态失败:', e)
     }
-    // 先完全清除，再设置新状态
     set({ isLoggedIn: false, username: null })
     console.log('已更新 store 状态: isLoggedIn = false')
   },
@@ -90,7 +90,6 @@ export const useStore = create((set, get) => ({
   ],
   addAnnotation: (annotation) =>
     set((state) => ({ annotations: [...state.annotations, annotation] })),
-  // 标注位置选择
   isSelectingAnnotationPosition: false,
   tempAnnotationPosition: null,
   newAnnotation: { text: '', position: [0, 5, 0], style: 'box', color: '#00d4ff', visible: true, size: 1, rotation: [0, 0, 0] },
@@ -143,12 +142,96 @@ export const useStore = create((set, get) => ({
     set((state) => ({
       models: state.models.map((m) => m.id === id ? { ...m, ...updates } : m)
     })),
+  // 批量导入模型
+  importModels: (newModels) => set((state) => ({ 
+    models: [...state.models, ...newModels] 
+  })),
+  // 导出模型数据
+  exportModels: () => {
+    const customModels = get().models.filter(m => m.isCustom)
+    return JSON.stringify(customModels, null, 2)
+  },
+
+  // 建模工具
+  isBuilding: false,
+  buildingPoints: [],
+  buildingHeight: 10,
+  buildingTexture: 'brick',
+  buildingColor: '#a0b0c0',
+  buildingImage: null,
+  textureScale: 1,
+  textureRotation: 0,
+  textureOffset: [0, 0],
+  editingModelId: null,
+  isMovingModel: false,
+  moveStartPosition: null,
+  isRotatingModel: false,
+  transformMode: null,
+  
+  setIsBuilding: (building) => set({ isBuilding: building }),
+  addBuildingPoint: (point) => 
+    set((state) => ({ 
+      buildingPoints: [...state.buildingPoints, point] 
+    })),
+  undoBuildingPoint: () =>
+    set((state) => ({
+      buildingPoints: state.buildingPoints.slice(0, -1)
+    })),
+  clearBuildingPoints: () => set({ buildingPoints: [] }),
+  setBuildingHeight: (height) => set({ buildingHeight: height }),
+  setBuildingTexture: (texture) => set({ buildingTexture: texture }),
+  setBuildingColor: (color) => set({ buildingColor: color }),
+  setBuildingImage: (image) => set({ buildingImage: image }),
+  setTextureScale: (scale) => set({ textureScale: scale }),
+  setTextureRotation: (rotation) => set({ textureRotation: rotation }),
+  setTextureOffset: (offset) => set({ textureOffset: offset }),
+  setEditingModelId: (id) => set({ editingModelId: id }),
+  setIsMovingModel: (isMoving) => set({ isMovingModel: isMoving }),
+  setMoveStartPosition: (pos) => set({ moveStartPosition: pos }),
+  setIsRotatingModel: (isRotating) => set({ isRotatingModel: isRotating }),
+  setTransformMode: (mode) => set({ transformMode: mode }),
+  resetModelingParams: () => set({ 
+    buildingPoints: [], 
+    buildingHeight: 10, 
+    buildingTexture: 'brick', 
+    buildingColor: '#a0b0c0',
+    buildingImage: null,
+    textureScale: 1,
+    textureRotation: 0,
+    textureOffset: [0, 0]
+  }),
+
+  // 管线数据
+  pipes: [],
+  customPipes: [...defaultPipeData],
+  selectedPipe: null,
+  setPipes: (pipes) => set({ pipes }),
+  setCustomPipes: (pipes) => set({ customPipes: pipes }),
+  setSelectedPipe: (pipe) => set({ selectedPipe: pipe }),
+  hasSelectedPipe: false,
+  setHasSelectedPipe: (has) => set({ hasSelectedPipe: has }),
+  // 导入管线数据
+  importPipes: (newPipes) => set((state) => ({ 
+    customPipes: [...state.customPipes, ...newPipes] 
+  })),
+  // 导出管线数据
+  exportPipes: () => {
+    return JSON.stringify(get().customPipes, null, 2)
+  },
+  // 添加单条管线
+  addPipe: (pipe) => set((state) => ({ 
+    customPipes: [...state.customPipes, pipe] 
+  })),
+  // 移除管线
+  removePipe: (id) => set((state) => ({ 
+    customPipes: state.customPipes.filter(p => p.id !== id) 
+  })),
 
   // 测量工具
   measurements: [],
-  measurementMode: null, // length, area, height, angle
+  measurementMode: null,
   measurementPoints: [],
-  isDoubleClickPending: false, // 双击判定
+  isDoubleClickPending: false,
   setMeasurementMode: (mode) => set({ measurementMode: mode, measurementPoints: [] }),
   addMeasurementPoint: (point) => 
     set((state) => ({ 
@@ -157,7 +240,6 @@ export const useStore = create((set, get) => ({
   addMeasurement: (measurement) =>
     set((state) => ({ measurements: [...state.measurements, measurement] })),
   clearMeasurements: () => set({ measurements: [] }),
-  // 计算多边形面积（使用鞋带公式）
   calculatePolygonArea: (points) => {
     if (points.length < 3) return 0
     let area = 0
@@ -169,14 +251,10 @@ export const useStore = create((set, get) => ({
     }
     return Math.abs(area / 2)
   },
-  
-  // 计算点到地面的高度
   calculateHeight: (points) => {
     if (points.length < 1) return 0
-    return Math.abs(points[0][1]) // 直接返回点的 y 坐标绝对值（地面在 y=0）
+    return Math.abs(points[0][1])
   },
-  
-  // 计算角度（三点，中间的是顶点）
   calculateAngle: (points) => {
     if (points.length < 3) return 0
     const p1 = new THREE.Vector3(...points[0])
@@ -191,12 +269,10 @@ export const useStore = create((set, get) => ({
     const angle = Math.atan2(cross.length(), dot)
     return angle * (180 / Math.PI)
   },
-  
   finishCurrentMeasurement: () => 
     set((state) => {
       const { measurementPoints, measurementMode } = state
       
-      // 高度测量只需要至少一个点，其他测量需要至少两个点
       if (measurementMode === 'height' && measurementPoints.length < 1) return {}
       if (measurementMode !== 'height' && measurementPoints.length < 2) return {}
       
@@ -217,14 +293,14 @@ export const useStore = create((set, get) => ({
         const angle = get().calculateAngle(measurementPoints)
         calculatedData.angle = angle
       } else {
-        let totalLength = 0
+        let totalDistance = 0
         for (let i = 1; i < measurementPoints.length; i++) {
           const dx = measurementPoints[i][0] - measurementPoints[i-1][0]
           const dy = measurementPoints[i][1] - measurementPoints[i-1][1]
           const dz = measurementPoints[i][2] - measurementPoints[i-1][2]
-          totalLength += Math.sqrt(dx * dx + dy * dy + dz * dz)
+          totalDistance += Math.sqrt(dx * dx + dy * dy + dz * dz)
         }
-        calculatedData.distance = totalLength
+        calculatedData.distance = totalDistance
       }
       
       return {
@@ -233,83 +309,9 @@ export const useStore = create((set, get) => ({
       }
     }),
 
-  // 建模工具
-  isBuilding: false,
-  buildingPoints: [],
-  buildingHeight: 10,
-  buildingTexture: 'brick', // brick, glass, concrete, metal
-  buildingColor: '#a0b0c0',
-  buildingImage: null, // 用户上传的贴图图片
-  // 纹理微调参数
-  textureScale: 1,
-  textureRotation: 0,
-  textureOffset: [0, 0],
-  // 编辑状态
-  editingModelId: null,
-  // 移动模式
-  isMovingModel: false,
-  // 移动起始位置
-  moveStartPosition: null,
-  // 旋转模式
-  isRotatingModel: false,
-  // 变换控制器模式
-  transformMode: null, // 'translate' | 'rotate' | null,
-  
-  setIsBuilding: (building) => set({ isBuilding: building }),
-  addBuildingPoint: (point) => 
-    set((state) => ({ 
-      buildingPoints: [...state.buildingPoints, point] 
-    })),
-  // 撤销上一个点
-  undoBuildingPoint: () =>
-    set((state) => ({
-      buildingPoints: state.buildingPoints.slice(0, -1)
-    })),
-  clearBuildingPoints: () => set({ buildingPoints: [] }),
-  setBuildingHeight: (height) => set({ buildingHeight: height }),
-  setBuildingTexture: (texture) => set({ buildingTexture: texture }),
-  setBuildingColor: (color) => set({ buildingColor: color }),
-  setBuildingImage: (image) => set({ buildingImage: image }),
-  // 纹理微调
-  setTextureScale: (scale) => set({ textureScale: scale }),
-  setTextureRotation: (rotation) => set({ textureRotation: rotation }),
-  setTextureOffset: (offset) => set({ textureOffset: offset }),
-  // 编辑模式
-  setEditingModelId: (id) => set({ editingModelId: id }),
-  // 移动模式
-  setIsMovingModel: (isMoving) => set({ isMovingModel: isMoving }),
-  setMoveStartPosition: (pos) => set({ moveStartPosition: pos }),
-  // 旋转模式
-  setIsRotatingModel: (isRotating) => set({ isRotatingModel: isRotating }),
-  // 变换模式
-  setTransformMode: (mode) => set({ transformMode: mode }),
-  // 重置建模参数
-  resetModelingParams: () => set({ 
-    buildingPoints: [], 
-    buildingHeight: 10, 
-    buildingTexture: 'brick', 
-    buildingColor: '#a0b0c0',
-    buildingImage: null,
-    textureScale: 1,
-    textureRotation: 0,
-    textureOffset: [0, 0]
-  }),
-
-
-
-  // 管线数据
-  pipes: [],
-  selectedPipe: null,
-  setPipes: (pipes) => set({ pipes }),
-  setSelectedPipe: (pipe) => set({ selectedPipe: pipe }),
-  // 是否选中了管线（用于控制其他模型半透明）
-  hasSelectedPipe: false,
-  setHasSelectedPipe: (has) => set({ hasSelectedPipe: has }),
-
   // 分析工具
   analysisMode: null,
   analysisViewpoint: null,
-  // 日照分析设置
   sunPosition: { 
     azimuth: 180, 
     altitude: 45,
@@ -317,11 +319,10 @@ export const useStore = create((set, get) => ({
     minute: 0,
     month: 6,
     day: 21,
-    latitude: 39.9, // 北京纬度
-    longitude: 116.4, // 北京经度
-    useTimeMode: false // 默认使用角度模式
+    latitude: 39.9,
+    longitude: 116.4,
+    useTimeMode: false
   },
-  // 视域分析设置
   viewshedSettings: {
     range: 100,
     horizontalFOV: 90,
@@ -376,5 +377,22 @@ export const useStore = create((set, get) => ({
   updateResource: (id, updates) =>
     set((state) => ({
       resources: state.resources.map(r => r.id === id ? { ...r, ...updates } : r)
-    }))
+    })),
+
+  // 管线生成工具状态
+  pipeGenMode: null,
+  setPipeGenMode: (mode) => set({ pipeGenMode: mode }),
+  pipeGenPoints: [],
+  addPipeGenPoint: (point) => 
+    set((state) => ({ pipeGenPoints: [...state.pipeGenPoints, point] })),
+  clearPipeGenPoints: () => set({ pipeGenPoints: [] }),
+  pipeGenParams: {
+    pipeType: 'water',
+    diameter: 0.5,
+    depth: 1.5,
+    material: 'PE管',
+    pressure: '1.0MPa'
+  },
+  setPipeGenParams: (params) => 
+    set((state) => ({ pipeGenParams: { ...state.pipeGenParams, ...params } }))
 }))

@@ -979,7 +979,7 @@ const PipeListItem = ({ pipe, isSelected, isVisible, onSelect, onToggleVisibilit
 }
 
 const PipeListPanel = () => {
-  const { selectedPipe, setSelectedPipe, modelVisibility, toggleModelVisibility, setHasSelectedPipe, setCurrentTool, layers, toggleLayer } = useStore()
+  const { selectedPipe, setSelectedPipe, modelVisibility, toggleModelVisibility, setHasSelectedPipe, setCurrentTool, layers, toggleLayer, customPipes } = useStore()
   const [openGroups, setOpenGroups] = React.useState({
     water: true,
     drain: true,
@@ -1020,7 +1020,7 @@ const PipeListPanel = () => {
 
   const groupPipesByType = () => {
     const groups = {}
-    defaultPipeData.forEach(pipe => {
+    customPipes.forEach(pipe => {
       if (!groups[pipe.pipeType]) {
         groups[pipe.pipeType] = []
       }
@@ -2096,6 +2096,8 @@ const AnnotationPanel = () => {
 
 const RightPanel = () => {
   const { currentTool, selectedModel, selectedPipe } = useStore()
+  // 导入 ResourcePanel
+  const ResourcePanel = React.lazy(() => import('./ResourcePanel'))
 
   const renderPanel = () => {
     switch (currentTool) {
@@ -2153,6 +2155,12 @@ const RightPanel = () => {
       case 'analysis':
         return (
           <AnalysisPanel />
+        )
+      case 'services':
+        return (
+          <React.Suspense fallback={<div>加载中...</div>}>
+            <ResourcePanel />
+          </React.Suspense>
         )
       default:
         return (
