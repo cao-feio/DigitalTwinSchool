@@ -317,8 +317,23 @@ const ModelListPanel = () => {
 const PropertyEditPanel = () => {
   const { selectedModel, updateModel, transformMode, setTransformMode } = useStore()
   const [isEditing, setIsEditing] = useState(false)
+  const [localModel, setLocalModel] = useState(null)
 
-  if (!selectedModel) {
+  // 当选择模型变化时，更新本地状态
+  React.useEffect(() => {
+    if (selectedModel) {
+      setLocalModel({ ...selectedModel })
+    }
+  }, [selectedModel?.id])
+
+  const handleSave = () => {
+    if (localModel && selectedModel) {
+      updateModel(selectedModel.id, localModel)
+      setIsEditing(false)
+    }
+  }
+
+  if (!selectedModel || !localModel) {
     return (
       <div style={{
         textAlign: 'center',
@@ -329,6 +344,22 @@ const PropertyEditPanel = () => {
         <p>点击场景中的模型查看和编辑属性</p>
       </div>
     )
+  }
+
+  const buildingTypeOptions = [
+    { value: 'teaching', label: '教学楼' },
+    { value: 'lab', label: '实验楼' },
+    { value: 'library', label: '图书馆' },
+    { value: 'gym', label: '体育馆' },
+    { value: 'dorm', label: '宿舍楼' },
+    { value: 'canteen', label: '食堂' },
+    { value: 'admin', label: '行政楼' },
+    { value: 'other', label: '其他' }
+  ]
+
+  const getBuildingTypeName = (type) => {
+    const found = buildingTypeOptions.find(option => option.value === type)
+    return found ? found.label : '其他'
   }
 
   return (
@@ -347,7 +378,7 @@ const PropertyEditPanel = () => {
           <Button
             size="small"
             type={isEditing ? "primary" : "default"}
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={() => isEditing ? handleSave() : setIsEditing(true)}
             style={{
               background: isEditing ? 'linear-gradient(135deg, #00d4ff 0%, #10b981 100%)' : 'transparent',
               border: '1px solid rgba(0, 212, 255, 0.3)',
@@ -362,8 +393,8 @@ const PropertyEditPanel = () => {
             <label style={{ color: '#64748b', fontSize: '12px', display: 'block', marginBottom: '4px' }}>建筑名称</label>
             {isEditing ? (
               <Input
-                value={selectedModel.name}
-                onChange={(e) => updateModel(selectedModel.id, { name: e.target.value })}
+                value={localModel.name}
+                onChange={(e) => setLocalModel({ ...localModel, name: e.target.value })}
                 style={{
                   background: 'rgba(15, 23, 42, 0.8)',
                   border: '1px solid rgba(0, 212, 255, 0.3)',
@@ -371,14 +402,14 @@ const PropertyEditPanel = () => {
                   color: '#e2e8f0'
                 }}
               />
-            ) : <div style={{ color: '#e2e8f0', fontSize: '14px' }}>{selectedModel.name}</div>}
+            ) : <div style={{ color: '#e2e8f0', fontSize: '14px' }}>{localModel.name}</div>}
           </div>
           <div>
             <label style={{ color: '#64748b', fontSize: '12px', display: 'block', marginBottom: '4px' }}>描述</label>
             {isEditing ? (
               <Input.TextArea
-                value={selectedModel.description}
-                onChange={(e) => updateModel(selectedModel.id, { description: e.target.value })}
+                value={localModel.description || ''}
+                onChange={(e) => setLocalModel({ ...localModel, description: e.target.value })}
                 rows={3}
                 style={{
                   background: 'rgba(15, 23, 42, 0.8)',
@@ -387,39 +418,94 @@ const PropertyEditPanel = () => {
                   color: '#e2e8f0'
                 }}
               />
-            ) : <div style={{ color: '#94a3b8', fontSize: '13px' }}>{selectedModel.description}</div>}
+            ) : <div style={{ color: '#94a3b8', fontSize: '13px' }}>{localModel.description}</div>}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '4px' }}>
             <div>
-              <label style={{ color: '#64748b', fontSize: '11px' }}>建筑类型</label>
-              <div style={{ color: '#00d4ff', fontSize: '13px', fontWeight: '600', marginTop: '2px' }}>
-                {selectedModel.type === 'teaching' ? '教学楼' :
-                 selectedModel.type === 'lab' ? '实验楼' :
-                 selectedModel.type === 'library' ? '图书馆' :
-                 selectedModel.type === 'gym' ? '体育馆' :
-                 selectedModel.type === 'dorm' ? '宿舍楼' :
-                 selectedModel.type === 'canteen' ? '食堂' :
-                 selectedModel.type === 'admin' ? '行政楼' :
-                 '其他'}
-              </div>
+              <label style={{ color: '#64748b', fontSize: '11px', display: 'block', marginBottom: '4px' }}>建筑类型</label>
+              {isEditing ? (
+                <Select
+                  value={localModel.type}
+                  onChange={(value) => setLocalModel({ ...localModel, type: value })}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    border: '1px solid rgba(0, 212, 255, 0.3)',
+                    borderRadius: '6px',
+                    color: '#e2e8f0'
+                  }}
+                  options={buildingTypeOptions}
+                />
+              ) : (
+                <div style={{ color: '#00d4ff', fontSize: '13px', fontWeight: '600', marginTop: '2px' }}>
+                  {getBuildingTypeName(localModel.type)}
+                </div>
+              )}
             </div>
             <div>
-              <label style={{ color: '#64748b', fontSize: '11px' }}>楼层数</label>
-              <div style={{ color: '#22c55e', fontSize: '13px', fontWeight: '600', marginTop: '2px' }}>
-                {selectedModel.floors} 层
-              </div>
+              <label style={{ color: '#64748b', fontSize: '11px', display: 'block', marginBottom: '4px' }}>楼层数</label>
+              {isEditing ? (
+                <InputNumber
+                  value={localModel.floors}
+                  onChange={(value) => setLocalModel({ ...localModel, floors: value })}
+                  min={1}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    border: '1px solid rgba(0, 212, 255, 0.3)',
+                    borderRadius: '6px',
+                    color: '#e2e8f0'
+                  }}
+                  suffix="层"
+                />
+              ) : (
+                <div style={{ color: '#22c55e', fontSize: '13px', fontWeight: '600', marginTop: '2px' }}>
+                  {localModel.floors} 层
+                </div>
+              )}
             </div>
             <div>
-              <label style={{ color: '#64748b', fontSize: '11px' }}>建筑面积</label>
-              <div style={{ color: '#f59e0b', fontSize: '13px', fontWeight: '600', marginTop: '2px' }}>
-                {selectedModel.area}
-              </div>
+              <label style={{ color: '#64748b', fontSize: '11px', display: 'block', marginBottom: '4px' }}>建筑面积</label>
+              {isEditing ? (
+                <Input
+                  value={localModel.area}
+                  onChange={(e) => setLocalModel({ ...localModel, area: e.target.value })}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    border: '1px solid rgba(0, 212, 255, 0.3)',
+                    borderRadius: '6px',
+                    color: '#e2e8f0'
+                  }}
+                />
+              ) : (
+                <div style={{ color: '#f59e0b', fontSize: '13px', fontWeight: '600', marginTop: '2px' }}>
+                  {localModel.area}
+                </div>
+              )}
             </div>
             <div>
-              <label style={{ color: '#64748b', fontSize: '11px' }}>建成年份</label>
-              <div style={{ color: '#a855f7', fontSize: '13px', fontWeight: '600', marginTop: '2px' }}>
-                {selectedModel.builtYear} 年
-              </div>
+              <label style={{ color: '#64748b', fontSize: '11px', display: 'block', marginBottom: '4px' }}>建成年份</label>
+              {isEditing ? (
+                <InputNumber
+                  value={localModel.builtYear}
+                  onChange={(value) => setLocalModel({ ...localModel, builtYear: value })}
+                  min={1900}
+                  max={2100}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    border: '1px solid rgba(0, 212, 255, 0.3)',
+                    borderRadius: '6px',
+                    color: '#e2e8f0'
+                  }}
+                  suffix="年"
+                />
+              ) : (
+                <div style={{ color: '#a855f7', fontSize: '13px', fontWeight: '600', marginTop: '2px' }}>
+                  {localModel.builtYear} 年
+                </div>
+              )}
             </div>
           </div>
         </Space>
