@@ -840,13 +840,14 @@ const BuildingWithTransform = ({ building, isSelected, isFaded, onClick }) => {
 };
 
 const Buildings = ({ isFaded: externalIsFaded }) => {
-  const { selectedModel, setSelectedModel, modelVisibility, hasSelectedPipe } = useStore()
+  const { selectedModel, setSelectedModel, modelVisibility, hasSelectedPipe, models } = useStore()
 
-  const buildingsData = defaultBuildingData
+  // 只渲染默认建筑（用户建筑在UserBuildings组件中渲染）
+  const defaultBuildings = models.filter(m => !m.isCustom)
 
   return (
     <group>
-      {buildingsData.map(building => {
+      {defaultBuildings.map(building => {
         if (modelVisibility[building.id] === false) return null
         const isSelected = selectedModel?.id === building.id
         const isFaded = (hasSelectedPipe || externalIsFaded) && !isSelected

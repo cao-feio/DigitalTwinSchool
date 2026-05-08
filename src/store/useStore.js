@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { defaultBuildingData } from '../components/Buildings'
+import * as THREE from 'three'
 
 export const useStore = create((set, get) => ({
   // 登录状态 - 先默认false，在App组件中初始化
@@ -120,8 +122,8 @@ export const useStore = create((set, get) => ({
       }
     })),
 
-  // 模型数据
-  models: [],
+  // 模型数据 - 包含默认建筑和用户创建的建筑
+  models: [...defaultBuildingData],
   addModel: (model) => set((state) => ({ models: [...state.models, model] })),
   removeModel: (id) =>
     set((state) => ({
@@ -145,17 +147,77 @@ export const useStore = create((set, get) => ({
   addMeasurement: (measurement) =>
     set((state) => ({ measurements: [...state.measurements, measurement] })),
   clearMeasurements: () => set({ measurements: [] }),
+  // 计算多边形面积（使用鞋带公式）
+  calculatePolygonArea: (points) => {
+    if (points.length < 3) return 0
+    let area = 0
+    const n = points.length
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n
+      area += points[i][0] * points[j][2]
+      area -= points[j][0] * points[i][2]
+    }
+    return Math.abs(area / 2)
+  },
+  
+  // 计算高度差
+  calculateHeight: (points) => {
+    if (points.length < 2) return 0
+    const heights = points.map(p => p[1])
+    return Math.abs(Math.max(...heights) - Math.min(...heights))
+  },
+  
+  // 计算角度（三点，中间的是顶点）
+  calculateAngle: (points) => {
+    if (points.length < 3) return 0
+    const p1 = new THREE.Vector3(...points[0])
+    const vertex = new THREE.Vector3(...points[1])
+    const p2 = new THREE.Vector3(...points[2])
+    
+    const v1 = p1.sub(vertex)
+    const v2 = p2.sub(vertex)
+    
+    const dot = v1.dot(v2)
+    const cross = v1.clone().cross(v2)
+    const angle = Math.atan2(cross.length(), dot)
+    return angle * (180 / Math.PI)
+  },
+  
   finishCurrentMeasurement: () => 
     set((state) => {
-      if (state.measurementPoints.length < 2) return {}
-      const newMeasurement = {
+      const { measurementPoints, measurementMode } = state
+      
+      if (measurementPoints.length < 2) return {}
+      
+      let calculatedData = {
         id: Date.now(),
-        type: state.measurementMode || 'length',
-        points: [...state.measurementPoints],
+        type: measurementMode || 'length',
+        points: [...measurementPoints],
         timestamp: Date.now()
       }
+      
+      if (measurementMode === 'area' && measurementPoints.length >= 3) {
+        const area = get().calculatePolygonArea(measurementPoints)
+        calculatedData.area = area
+      } else if (measurementMode === 'height') {
+        const height = get().calculateHeight(measurementPoints)
+        calculatedData.height = height
+      } else if (measurementMode === 'angle' && measurementPoints.length >= 3) {
+        const angle = get().calculateAngle(measurementPoints)
+        calculatedData.angle = angle
+      } else {
+        let totalLength = 0
+        for (let i = 1; i < measurementPoints.length; i++) {
+          const dx = measurementPoints[i][0] - measurementPoints[i-1][0]
+          const dy = measurementPoints[i][1] - measurementPoints[i-1][1]
+          const dz = measurementPoints[i][2] - measurementPoints[i-1][2]
+          totalLength += Math.sqrt(dx * dx + dy * dy + dz * dz)
+        }
+        calculatedData.distance = totalLength
+      }
+      
       return {
-        measurements: [...state.measurements, newMeasurement],
+        measurements: [...state.measurements, calculatedData],
         measurementPoints: []
       }
     }),

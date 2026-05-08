@@ -185,8 +185,10 @@ const ModelListItem = ({ model, isSelected, isVisible, onSelect, onToggleVisibil
 }
 
 const ModelListPanel = () => {
-  const { selectedModel, setSelectedModel, modelVisibility, toggleModelVisibility } = useStore()
+  const { selectedModel, setSelectedModel, modelVisibility, toggleModelVisibility, models } = useStore()
   const [openGroups, setOpenGroups] = React.useState({
+    default: true,
+    custom: true,
     teaching: true,
     lab: true,
     library: true,
@@ -209,6 +211,25 @@ const ModelListPanel = () => {
 
   // 定义分类和对应的名称
   const groupConfig = {
+    default: { name: '预设建筑', icon: '🏛️' },
+    custom: { name: '自定义建筑', icon: '🏗️' }
+  }
+
+  // 分类模型：预设和自定义
+  const defaultModels = models.filter(m => !m.isCustom)
+  const customModels = models.filter(m => m.isCustom)
+
+  // 把预设建筑按类型分组
+  const groupedDefaultModels = defaultModels.reduce((acc, model) => {
+    if (!acc[model.type]) {
+      acc[model.type] = []
+    }
+    acc[model.type].push(model)
+    return acc
+  }, {})
+
+  // 预设建筑的类型分组配置
+  const buildingTypeConfig = {
     teaching: { name: '教学楼', icon: '🏫' },
     lab: { name: '实验楼', icon: '🔬' },
     library: { name: '图书馆', icon: '📚' },
@@ -217,15 +238,6 @@ const ModelListPanel = () => {
     canteen: { name: '食堂', icon: '🍽️' },
     admin: { name: '行政楼', icon: '🏢' }
   }
-
-  // 按类型分组模型
-  const groupedModels = defaultBuildingData.reduce((acc, model) => {
-    if (!acc[model.type]) {
-      acc[model.type] = []
-    }
-    acc[model.type].push(model)
-    return acc
-  }, {})
 
   return (
     <>
@@ -241,74 +253,179 @@ const ModelListPanel = () => {
         />
       </div>
       <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '6px' }}>
-        {Object.entries(groupConfig).map(([type, config]) => {
-          const models = groupedModels[type] || []
-          if (models.length === 0) return null
+        {/* 预设建筑分组 */}
+        <div style={{ marginBottom: '12px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 14px',
+              background: 'linear-gradient(90deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 212, 255, 0.05) 100%)',
+              borderRadius: '8px',
+              border: '1px solid rgba(0, 212, 255, 0.25)',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              marginBottom: '8px'
+            }}
+            onClick={() => toggleGroup('default')}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(90deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 212, 255, 0.08) 100%)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(90deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 212, 255, 0.05) 100%)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '22px', filter: 'drop-shadow(0 0 6px rgba(0, 212, 255, 0.4))' }}>🏛️</span>
+              <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '14px', letterSpacing: '0.5px' }}>
+                预设建筑
+              </span>
+              <span style={{ 
+                color: '#00d4ff', 
+                fontSize: '12px', 
+                fontWeight: '600',
+                background: 'rgba(0, 212, 255, 0.15)',
+                padding: '2px 8px',
+                borderRadius: '10px'
+              }}>
+                {defaultModels.length}
+              </span>
+            </div>
+            <span style={{ color: '#00d4ff' }}>
+              {openGroups.default ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </span>
+          </div>
           
-          return (
-            <div key={type} style={{ marginBottom: '12px' }}>
-              {/* 分组标题 */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 14px',
-                  background: 'linear-gradient(90deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 212, 255, 0.05) 100%)',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(0, 212, 255, 0.25)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  marginBottom: '8px'
-                }}
-                onClick={() => toggleGroup(type)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(90deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 212, 255, 0.08) 100%)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(90deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 212, 255, 0.05) 100%)'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '22px', filter: 'drop-shadow(0 0 6px rgba(0, 212, 255, 0.4))' }}>{config.icon}</span>
-                  <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '14px', letterSpacing: '0.5px' }}>
-                    {config.name}
-                  </span>
-                  <span style={{ 
-                    color: '#00d4ff', 
-                    fontSize: '12px', 
-                    fontWeight: '600',
-                    background: 'rgba(0, 212, 255, 0.15)',
-                    padding: '2px 8px',
-                    borderRadius: '10px'
-                  }}>
-                    {models.length}
-                  </span>
-                </div>
-                <span style={{ color: '#00d4ff' }}>
-                  {openGroups[type] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {openGroups.default && (
+            <div style={{ paddingLeft: '10px' }}>
+              {/* 按类型展开预设建筑 */}
+              {Object.entries(buildingTypeConfig).map(([type, config]) => {
+                const typeModels = groupedDefaultModels[type] || []
+                if (typeModels.length === 0) return null
+                
+                return (
+                  <div key={type} style={{ marginBottom: '8px' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
+                        background: 'rgba(0, 212, 255, 0.08)',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(0, 212, 255, 0.15)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        marginBottom: '6px'
+                      }}
+                      onClick={() => toggleGroup(type)}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '18px' }}>{config.icon}</span>
+                        <span style={{ color: '#ffffff', fontWeight: '600', fontSize: '12px' }}>
+                          {config.name}
+                        </span>
+                        <span style={{ 
+                          color: '#00d4ff', 
+                          fontSize: '10px', 
+                          fontWeight: '600',
+                          background: 'rgba(0, 212, 255, 0.15)',
+                          padding: '1px 6px',
+                          borderRadius: '8px'
+                        }}>
+                          {typeModels.length}
+                        </span>
+                      </div>
+                      <span style={{ color: '#00d4ff', fontSize: '12px' }}>
+                        {openGroups[type] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                      </span>
+                    </div>
+                    
+                    {openGroups[type] && (
+                      <div style={{ paddingLeft: '8px' }}>
+                        {typeModels.map((model) => (
+                          <ModelListItem
+                            key={model.id}
+                            model={model}
+                            isSelected={selectedModel?.id === model.id}
+                            isVisible={modelVisibility[model.id] !== false}
+                            onSelect={setSelectedModel}
+                            onToggleVisibility={toggleModelVisibility}
+                            onLocate={handleLocate}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* 自定义建筑分组 */}
+        {customModels.length > 0 && (
+          <div style={{ marginBottom: '12px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 14px',
+                background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%)',
+                borderRadius: '8px',
+                border: '1px solid rgba(139, 92, 246, 0.25)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                marginBottom: '8px'
+              }}
+              onClick={() => toggleGroup('custom')}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(90deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.08) 100%)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(90deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '22px', filter: 'drop-shadow(0 0 6px rgba(139, 92, 246, 0.4))' }}>🏗️</span>
+                <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '14px', letterSpacing: '0.5px' }}>
+                  自定义建筑
+                </span>
+                <span style={{ 
+                  color: '#a855f7', 
+                  fontSize: '12px', 
+                  fontWeight: '600',
+                  background: 'rgba(139, 92, 246, 0.15)',
+                  padding: '2px 8px',
+                  borderRadius: '10px'
+                }}>
+                  {customModels.length}
                 </span>
               </div>
-              
-              {/* 展开的模型列表 */}
-              {openGroups[type] && (
-                <div style={{ paddingLeft: '10px' }}>
-                  {models.map((model) => (
-                    <ModelListItem
-                      key={model.id}
-                      model={model}
-                      isSelected={selectedModel?.id === model.id}
-                      isVisible={modelVisibility[model.id] !== false}
-                      onSelect={setSelectedModel}
-                      onToggleVisibility={toggleModelVisibility}
-                      onLocate={handleLocate}
-                    />
-                  ))}
-                </div>
-              )}
+              <span style={{ color: '#a855f7' }}>
+                {openGroups.custom ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </span>
             </div>
-          )
-        })}
+            
+            {openGroups.custom && (
+              <div style={{ paddingLeft: '10px' }}>
+                {customModels.map((model) => (
+                  <ModelListItem
+                    key={model.id}
+                    model={model}
+                    isSelected={selectedModel?.id === model.id}
+                    isVisible={modelVisibility[model.id] !== false}
+                    onSelect={setSelectedModel}
+                    onToggleVisibility={toggleModelVisibility}
+                    onLocate={handleLocate}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   )

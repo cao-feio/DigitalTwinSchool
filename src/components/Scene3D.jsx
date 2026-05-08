@@ -567,16 +567,17 @@ const SingleUserBuilding = ({ building, isFaded: externalIsFaded }) => {
 }
 
 const UserBuildings = ({ isFaded: externalIsFaded }) => {
-  const { models, hasSelectedPipe } = useStore()
+  const { models, hasSelectedPipe, modelVisibility } = useStore()
   const isFaded = hasSelectedPipe || externalIsFaded
   
   const userBuildings = models.filter(m => m.points && m.points.length >= 3)
   
   return (
     <group>
-      {userBuildings.map((building) => (
-        <SingleUserBuilding key={building.id} building={building} isFaded={isFaded} />
-      ))}
+      {userBuildings.map((building) => {
+        if (modelVisibility[building.id] === false) return null
+        return <SingleUserBuilding key={building.id} building={building} isFaded={isFaded} />
+      })}
     </group>
   )
 }
