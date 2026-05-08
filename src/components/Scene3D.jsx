@@ -129,6 +129,7 @@ class SceneErrorBoundary extends React.Component {
   }
 }
 
+// Camera controller that supports navigating to annotations
 const CameraController = () => {
   const { selectedModel, transformMode, cameraTarget, selectedPipe, selectedAnnotationId, annotations } = useStore()
   const { camera } = useThree()

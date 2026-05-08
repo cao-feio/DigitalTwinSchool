@@ -1268,6 +1268,7 @@ const PipePropertyPanel = () => {
   )
 }
 
+// Annotation panel with location support
 const AnnotationPanel = () => {
   const {
     annotations,
