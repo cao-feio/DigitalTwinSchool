@@ -37,14 +37,16 @@ export const useStore = create((set, get) => ({
     }
   },
   logout: () => {
-    const newState = { isLoggedIn: false, username: null }
-    set(newState)
+    console.log('执行退出登录...')
     try {
       localStorage.removeItem('digital-twin-auth')
-      console.log('清除登录状态')
+      console.log('已清除 localStorage 中的登录状态')
     } catch (e) {
       console.error('清除登录状态失败:', e)
     }
+    // 先完全清除，再设置新状态
+    set({ isLoggedIn: false, username: null })
+    console.log('已更新 store 状态: isLoggedIn = false')
   },
 
   // 场景状态

@@ -5,7 +5,8 @@ import { useStore } from '../store/useStore'
 
 const Header = () => {
   const [currentTime, setCurrentTime] = useState(new Date())
-  const { logout, username } = useStore()
+  const logout = useStore(state => state.logout)
+  const username = useStore(state => state.username)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
