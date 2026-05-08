@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Layout } from 'antd'
 import { ConfigProvider, theme } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
@@ -90,7 +90,35 @@ const ParticleDecoration = () => {
 }
 
 function App() {
-  const { isLoggedIn, login } = useStore()
+  const { isLoggedIn, login, initializeAuth } = useStore()
+  const [authInitialized, setAuthInitialized] = useState(false)
+
+  // 在组件挂载时初始化登录状态
+  useEffect(() => {
+    console.log('App 初始化，开始恢复登录状态...')
+    initializeAuth()
+    setAuthInitialized(true)
+  }, [initializeAuth])
+
+  // 如果还没初始化完成，显示加载状态
+  if (!authInitialized) {
+    return (
+      <div style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #010a1f 0%, #01153c 50%, #000c2a 100%)',
+        color: '#00d4ff',
+        fontSize: '20px'
+      }}>
+        正在加载...
+      </div>
+    )
+  }
+
+  console.log('当前登录状态:', isLoggedIn)
 
   if (!isLoggedIn) {
     return (

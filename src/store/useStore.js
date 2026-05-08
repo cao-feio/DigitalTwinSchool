@@ -1,33 +1,35 @@
 import { create } from 'zustand'
 
-// 从localStorage读取初始状态
-const getInitialAuthState = () => {
-  try {
-    const savedState = localStorage.getItem('digital-twin-auth')
-    if (savedState) {
-      const parsed = JSON.parse(savedState)
-      return {
-        isLoggedIn: parsed.isLoggedIn || false,
-        username: parsed.username || null
-      }
-    }
-  } catch (e) {
-    console.error('读取登录状态失败:', e)
-  }
-  return { isLoggedIn: false, username: null }
-}
-
-const initialAuthState = getInitialAuthState()
-
 export const useStore = create((set, get) => ({
-  // 登录状态
-  isLoggedIn: initialAuthState.isLoggedIn,
-  username: initialAuthState.username,
+  // 登录状态 - 先默认false，在App组件中初始化
+  isLoggedIn: false,
+  username: null,
+  
+  // 初始化登录状态（在客户端安全调用）
+  initializeAuth: () => {
+    try {
+      const savedState = localStorage.getItem('digital-twin-auth')
+      if (savedState) {
+        const parsed = JSON.parse(savedState)
+        if (parsed.isLoggedIn) {
+          console.log('恢复登录状态:', parsed)
+          set({ 
+            isLoggedIn: parsed.isLoggedIn, 
+            username: parsed.username 
+          })
+        }
+      }
+    } catch (e) {
+      console.error('读取登录状态失败:', e)
+    }
+  },
+  
   login: (username) => {
     const newState = { isLoggedIn: true, username }
     set(newState)
     try {
       localStorage.setItem('digital-twin-auth', JSON.stringify(newState))
+      console.log('保存登录状态:', newState)
     } catch (e) {
       console.error('保存登录状态失败:', e)
     }
@@ -37,6 +39,7 @@ export const useStore = create((set, get) => ({
     set(newState)
     try {
       localStorage.removeItem('digital-twin-auth')
+      console.log('清除登录状态')
     } catch (e) {
       console.error('清除登录状态失败:', e)
     }
