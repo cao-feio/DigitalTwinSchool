@@ -44,7 +44,7 @@ const SingleAnnotation = ({ annotation }) => {
         } else if (transformMode === 'scale') {
           const scale = groupRef.current.scale;
           const avgScale = (scale.x + scale.y + scale.z) / 3;
-          const newSize = Math.max(0.5, Math.min(3, (annotation.size || 1) * avgScale));
+          const newSize = (annotation.size || 1) * avgScale;
           updateAnnotation(annotation.id, { size: newSize });
           groupRef.current.scale.set(1, 1, 1);
         } else if (transformMode === 'rotate') {

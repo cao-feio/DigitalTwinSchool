@@ -1685,20 +1685,7 @@ const AnnotationPanel = () => {
               </div>
             </div>
             
-            <div>
-              <label style={{ color: '#a0b8cc', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-                大小: {selectedAnnotation.size.toFixed(1)}
-              </label>
-              <input
-                type="range"
-                min="0.5"
-                max="3"
-                step="0.1"
-                value={selectedAnnotation.size}
-                onChange={(e) => updateAnnotation(selectedAnnotation.id, { size: parseFloat(e.target.value) })}
-                style={{ width: '100%' }}
-              />
-            </div>
+
           </Space>
         </div>
       )}
